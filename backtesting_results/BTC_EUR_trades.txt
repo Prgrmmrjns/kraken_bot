@@ -1,10 +1,10 @@
 {
     "strategy_params": {
-        "buy_threshold": 0.7978246525828859,
-        "take_profit": 0.9515398560649482,
-        "max_hold_time": 4,
-        "trailing_stop": 0.9149697738520347,
-        "target_shift": 6,
+        "buy_threshold": 0.6062827334264385,
+        "take_profit": 1.3731671678740611,
+        "max_hold_time": 6,
+        "trailing_stop": 0.5439163702180505,
+        "target_shift": 5,
         "target_window": 5,
         "optimization_score": -Infinity
     },

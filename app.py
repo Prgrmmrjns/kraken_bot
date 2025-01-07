@@ -34,7 +34,6 @@ def prepare_features(features_df, model_features):
     # Check if we have all required features
     missing_features = set(model_features) - set(features_df.columns)
     if missing_features:
-        print(f"Missing features: {missing_features}")
         return None
         
     # Return only the features the model expects, in the correct order
