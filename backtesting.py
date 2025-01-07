@@ -1,14 +1,17 @@
 import pandas as pd
 import numpy as np
-from datetime import datetime
 import json
-from model_functions import create_features, train_model, optimize_trading_strategy, simulate_trading, create_features_for_pair
+from model_functions import (
+    create_features,
+    train_model,
+    optimize_trading_strategy,
+    simulate_trading,
+)
 from kraken_functions import download_full_ohlc_data
 from trading_strat_params import TRADING_PAIRS, MODEL_CONFIG, TRADING_CONFIG
 import matplotlib.pyplot as plt
 import os
 import joblib
-import optuna
 
 def download_and_prepare_data():
     """Download and prepare data for all trading pairs."""
@@ -40,8 +43,8 @@ def visualize_trades(df, results, pair_name):
     
     # Ensure datetime index
     df = df.copy()
-    if isinstance(df.index[0], (int, float)):
-        df.index = pd.to_datetime(df.index, unit='s')
+    if not isinstance(df.index, pd.DatetimeIndex):
+        df.index = pd.to_datetime(df['timestamp'])
     
     # Plot price data
     ax1.plot(df.index, df['close'], label='Price', color='blue', alpha=0.6)
@@ -62,27 +65,15 @@ def visualize_trades(df, results, pair_name):
         entry_price = buy['price']
         exit_price = sell['price']
         
-        # Plot entry/exit points with correct timestamps
-        ax1.scatter(entry_time, entry_price, color='green', marker='^', s=100, zorder=5)
-        ax1.scatter(exit_time, exit_price, color='red', marker='v', s=100, zorder=5)
+        # Plot entry/exit points
+        ax1.scatter([entry_time], [entry_price], color='green', marker='^', s=100, zorder=5)
+        ax1.scatter([exit_time], [exit_price], color='red', marker='v', s=100, zorder=5)
         
         # Draw line connecting entry and exit
         ax1.plot([entry_time, exit_time], [entry_price, exit_price], 'gray', alpha=0.3, ls='--', zorder=4)
         
-        # Annotate return percentage at exit point
-        y_offset = (df['close'].max() - df['close'].min()) * 0.02  # Dynamic offset based on price range
-        y_pos = exit_price + y_offset if exit_price > entry_price else exit_price - y_offset
-        ax1.annotate(f"{sell['return_percent']:.1f}%", 
-                    xy=(exit_time, exit_price),
-                    xytext=(0, 10 if exit_price > entry_price else -20),
-                    textcoords='offset points',
-                    ha='center',
-                    fontsize=8,
-                    bbox=dict(facecolor='white', edgecolor='none', alpha=0.7),
-                    zorder=6)
-        
         # Track cumulative return
-        current_return += sell['return_percent']
+        current_return += sell['return']
         cumulative_returns.append(current_return)
         timestamps.append(exit_time)
     
@@ -106,9 +97,9 @@ def visualize_trades(df, results, pair_name):
     ax2.set_ylabel('Cumulative Return (%)')
     
     # Add performance summary
-    total_return = results['metrics']['total_return_pct']
+    total_return = results['metrics']['total_return']
     n_trades = len(sell_trades)
-    win_rate = len([t for t in sell_trades if t['return_percent'] > 0]) / len(sell_trades) * 100 if sell_trades else 0
+    win_rate = len([t for t in sell_trades if t['return'] > 0]) / len(sell_trades) * 100 if sell_trades else 0
     
     plt.figtext(0.02, 0.02,
                 f'Total Return: {total_return:.2f}%\n'
@@ -129,7 +120,7 @@ def print_backtest_summary(all_results, initial_balance, final_balance):
     
     # Aggregate metrics
     total_trades = sum(len([t for t in r['trades'] if t['type'] == 'sell']) for r in all_results)
-    winning_trades = sum(len([t for t in r['trades'] if t['type'] == 'sell' and t['return_percent'] > 0]) for r in all_results)
+    winning_trades = sum(len([t for t in r['trades'] if t['type'] == 'sell' and t['return'] > 0]) for r in all_results)
     total_pnl = final_balance - initial_balance
     
     # Calculate overall metrics
@@ -138,12 +129,12 @@ def print_backtest_summary(all_results, initial_balance, final_balance):
     
     # Only consider sell trades for returns and durations
     sell_trades = [t for r in all_results for t in r['trades'] if t['type'] == 'sell']
-    avg_trade_return = np.mean([t['return_percent'] for t in sell_trades]) if sell_trades else 0
+    avg_trade_return = np.mean([t['return'] for t in sell_trades]) if sell_trades else 0
     avg_trade_duration = np.mean([t['hours_held'] for t in sell_trades]) if sell_trades else 0
     
     # Find best and worst trades (only among sell trades)
-    best_trade = max(sell_trades, key=lambda x: x['return_percent']) if sell_trades else None
-    worst_trade = min(sell_trades, key=lambda x: x['return_percent']) if sell_trades else None
+    best_trade = max(sell_trades, key=lambda x: x['return']) if sell_trades else None
+    worst_trade = min(sell_trades, key=lambda x: x['return']) if sell_trades else None
     
     # Print summary
     print(f"\nInitial Balance: €{initial_balance:.2f}")
@@ -158,13 +149,13 @@ def print_backtest_summary(all_results, initial_balance, final_balance):
     
     if best_trade:
         print(f"\nBest Trade:")
-        print(f"Return: {best_trade['return_percent']:.2f}%")
+        print(f"Return: {best_trade['return']:.2f}%")
         print(f"Entry Price: €{best_trade['price']:.2f}")
         print(f"Duration: {best_trade['hours_held']:.1f} hours")
     
     if worst_trade:
         print(f"\nWorst Trade:")
-        print(f"Return: {worst_trade['return_percent']:.2f}%")
+        print(f"Return: {worst_trade['return']:.2f}%")
         print(f"Entry Price: €{worst_trade['price']:.2f}")
         print(f"Duration: {worst_trade['hours_held']:.1f} hours")
     
@@ -173,101 +164,62 @@ def print_backtest_summary(all_results, initial_balance, final_balance):
     for r in all_results:
         pair_name = r['pair_name']
         n_trades = len([t for t in r['trades'] if t['type'] == 'sell'])
-        pair_return = r['metrics']['total_return_pct']
+        pair_return = r['metrics']['total_return']
         pair_trades = [t for t in r['trades'] if t['type'] == 'sell']
-        pair_win_rate = (len([t for t in pair_trades if t['return_percent'] > 0]) / len(pair_trades) * 100) if pair_trades else 0
+        pair_win_rate = (len([t for t in pair_trades if t['return'] > 0]) / len(pair_trades) * 100) if pair_trades else 0
         print(f"{pair_name:12} | Trades: {n_trades:3d} | Return: {pair_return:6.2f}% | Win Rate: {pair_win_rate:5.2f}%")
 
 def run_backtest():
     """Run the complete backtesting process."""
-    # Create results directory
     os.makedirs('backtesting_results', exist_ok=True)
     os.makedirs('models', exist_ok=True)
     
-    # Download and prepare data
     print("\n🚀 Starting Backtesting Process...")
-    print("📥 Downloading historical data...")
     pair_data = download_and_prepare_data()
     if not pair_data:
         print("❌ No data available for backtesting")
         return
     
-    # Create features and prepare for training
-    print("\n🔧 Preparing features...")
     pair_features = create_features(pair_data)
-    
-    # Train models and run backtests for each pair
     all_results = []
     initial_balance = TRADING_CONFIG['risk_management']['total_balance']
     available_balance = initial_balance
     
     for pair, display_name in TRADING_PAIRS:
         if pair not in pair_features:
-            print(f"\n⚠️ Skipping {display_name} - no data available")
             continue
             
-        print(f"\n🔄 Processing {display_name}...")
-        df = pair_features[pair]
-        df = df.dropna(subset=['target'])
+        print(f"\n🔄 Processing {display_name}")
+        df = pair_features[pair].dropna(subset=['target'])
         
         if df.empty:
-            print(f"❌ No valid data for {display_name}")
             continue
         
-        # Prepare features
+        # Train model
         X = df.drop(columns=['timestamp', 'target'])
         y = df['target']
+        model = train_model(X, X, y, y)
+        joblib.dump(model, f'models/model_{pair}.joblib')
         
-        # Train model on all data
-        print(f"🧠 Training model for {display_name}...")
-        model = train_model(X, X, y, y)  # Train on all data
+        # Add predictions to dataframe
+        df['predicted_price'] = model.predict(X)
         
-        # Save model
-        model_file = f'models/model_{pair}.joblib'
-        joblib.dump(model, model_file)
-        print(f"💾 Saved model to {model_file}")
-        
-        # Optimize trading strategy
-        print(f"⚙️ Optimizing trading strategy for {display_name}...")
+        # Optimize trading strategy on full dataset
         strategy_params = optimize_trading_strategy(
             df,
             model,
             initial_balance=available_balance,
-            n_trials=25 if MODEL_CONFIG['fast_training'] else 50
+            n_trials=10
         )
         
-        print(f"\n✨ Best strategy parameters for {display_name}:")
-        print(f"🎯 Buy threshold: {strategy_params['buy_threshold']:.2f}%")
-        print(f"💰 Take profit: {strategy_params['take_profit_threshold']:.2f}%")
-        print(f"⏱️ Max hold time: {strategy_params['max_hold_hours']} hours")
-        print(f"🛡️ Trailing stop: {strategy_params['trailing_stop_distance']:.2f}%")
-        print(f"📉 Min RSI: {strategy_params['min_rsi']}")
-        print(f"📈 Max RSI: {strategy_params['max_rsi']}")
-        print(f"📊 Min Volume Ratio: {strategy_params['min_volume_ratio']:.2f}")
-        print(f"📊 Max Volatility: {strategy_params['max_volatility']:.2f}%")
-        print(f"🔒 Profit Lock: {strategy_params['profit_lock_pct']:.2f}%")
-        print(f"📈 Strategy Score: {strategy_params['optimization_score']:.2f}")
-        
-        # Calculate predicted prices
-        df_sim = df.copy()
-        features = df_sim.drop(columns=['timestamp', 'target'])
-        if 'predicted_price' in features.columns:
-            features = features.drop(columns=['predicted_price'])
-        df_sim['predicted_price'] = model.predict(features)
-        
-        # Run simulation with optimized parameters
+        # Run simulation
         results = simulate_trading(
-            df=df_sim,
+            df=df,
             predicted_price="predicted_price",
             buy_threshold=strategy_params['buy_threshold'],
-            take_profit_threshold=strategy_params['take_profit_threshold'],
-            max_hold_hours=strategy_params['max_hold_hours'],
-            trailing_stop_distance=strategy_params['trailing_stop_distance'],
-            min_rsi=strategy_params['min_rsi'],
-            max_rsi=strategy_params['max_rsi'],
-            min_volume_ratio=strategy_params['min_volume_ratio'],
-            max_volatility=strategy_params['max_volatility'],
-            profit_lock_pct=strategy_params['profit_lock_pct'],
+            take_profit=strategy_params['take_profit'],
+            max_hold_time=strategy_params['max_hold_time'],
+            trailing_stop=strategy_params['trailing_stop'],
             fee_rate=TRADING_CONFIG['risk_management']['fee_rate'],
             initial_balance=available_balance
         )
@@ -276,71 +228,93 @@ def run_backtest():
         results['strategy_params'] = strategy_params
         all_results.append(results)
         
-        # Create visualization
-        visualize_trades(df_sim, results, display_name)
+        # Get trade statistics
+        sell_trades = [t for t in results['trades'] if t['type'] == 'sell']
+        if sell_trades:
+            best_trade = max(sell_trades, key=lambda x: x['return'])
+            worst_trade = min(sell_trades, key=lambda x: x['return'])
+            win_rate = len([t for t in sell_trades if t['return'] > 0]) / len(sell_trades) * 100
+            
+            print(f"\n📊 Results for {display_name}:")
+            print(f"Strategy Score: {strategy_params['optimization_score']:.2f}")
+            print(f"Parameters: Buy > {strategy_params['buy_threshold']:.2f}%, TP {strategy_params['take_profit']:.2f}%, " +
+                  f"Stop {strategy_params['trailing_stop']:.2f}%")
+            print(f"Target: Shift {strategy_params['target_shift']} periods, Window {strategy_params['target_window']} periods")
+            print(f"Total Return: {results['metrics']['total_return']:.2f}%")
+            print(f"Number of Trades: {len(sell_trades)}")
+            print(f"Win Rate: {win_rate:.1f}%")
+            print(f"Best Trade: +{best_trade['return']:.2f}% ({best_trade['hours_held']:.1f}h)")
+            print(f"Worst Trade: {worst_trade['return']:.2f}% ({worst_trade['hours_held']:.1f}h)")
+        else:
+            print(f"\n⚠️ No trades executed for {display_name}")
         
-        # Save parameters and trade details to file
+        # Create visualization and save results
+        visualize_trades(df, results, display_name)
+        
+        # Save detailed results to file
         param_file = f'backtesting_results/{display_name.replace("/", "_")}_trades.txt'
         with open(param_file, 'w') as f:
-            # Write header
-            f.write(f"Trade Details for {display_name}\n")
-            f.write("="*50 + "\n\n")
-            
-            # Write strategy parameters (exact format required for parsing)
-            f.write("Strategy Parameters:\n")
-            for key, value in strategy_params.items():
-                if isinstance(value, float):
-                    f.write(f"{key}: {value:.6f}\n")
-                else:
-                    f.write(f"{key}: {value}\n")
-            
-            # Write trade details
-            f.write("\nIndividual Trades:\n")
-            f.write("-"*50 + "\n")
-            
-            buy_trades = [t for t in results['trades'] if t['type'] == 'buy']
-            sell_trades = [t for t in results['trades'] if t['type'] == 'sell']
-            
-            for i, (buy_trade, sell_trade) in enumerate(zip(buy_trades, sell_trades), 1):
-                entry_time = pd.to_datetime(buy_trade['timestamp'])
-                exit_time = pd.to_datetime(sell_trade['timestamp'])
-                
-                f.write(f"\nTrade #{i}:\n")
-                f.write(f"Entry Time: {entry_time}\n")
-                f.write(f"Entry Price: €{buy_trade['price']:.4f}\n")
-                f.write(f"Position Size: {buy_trade['size']:.4f}\n")
-                f.write(f"Entry Cost: €{buy_trade['cost']:.4f}\n")
-                f.write(f"Entry Fees: €{buy_trade['fees_paid']:.4f}\n")
-                f.write(f"Exit Time: {exit_time}\n")
-                f.write(f"Exit Price: €{sell_trade['price']:.4f}\n")
-                f.write(f"Exit Value: €{sell_trade['value']:.4f}\n")
-                f.write(f"Exit Fees: €{sell_trade['fees_paid']:.4f}\n")
-                f.write(f"Total Fees: €{sell_trade['total_fees']:.4f}\n")
-                f.write(f"Net P&L: €{sell_trade['net_pnl']:.4f}\n")
-                f.write(f"Return: {sell_trade['return_percent']:.2f}%\n")
-                f.write(f"Duration: {sell_trade['hours_held']:.1f} hours\n")
-                f.write(f"Balance After: €{sell_trade['balance_after']:.4f}\n")
-            
-            # Write summary metrics
-            f.write("\nSummary Metrics:\n")
-            f.write("-"*50 + "\n")
-            for metric, value in results['metrics'].items():
-                if isinstance(value, float):
-                    if metric.endswith('_pct'):
-                        f.write(f"{metric}: {value:.2f}%\n")
-                    elif metric.startswith('total_fees'):
-                        f.write(f"{metric}: €{value:.4f}\n")
-                    else:
-                        f.write(f"{metric}: {value:.4f}\n")
-                else:
-                    f.write(f"{metric}: {value}\n")
+            json.dump({
+                'strategy_params': strategy_params,
+                'trades': results['trades'],
+                'metrics': results['metrics']
+            }, f, indent=4, default=str)
         
-        # Update available balance
         available_balance = results['metrics']['final_balance']
     
-    # Print overall summary
-    print_backtest_summary(all_results, initial_balance, available_balance)
-    print("\n📊 Detailed results and visualizations saved in backtesting_results directory")
+    # Print final summary
+    print("\n" + "="*50)
+    print("BACKTEST SUMMARY")
+    print("="*50)
+    print(f"Initial Balance: €{initial_balance:.2f}")
+    print(f"Final Balance: €{available_balance:.2f}")
+    print(f"Total Return: {((available_balance - initial_balance) / initial_balance * 100):.2f}%")
+    
+    # Print pair comparison
+    print("\nPair Performance Comparison:")
+    print("-" * 60)
+    print(f"{'Pair':12} | {'Return':>8} | {'Trades':>6} | {'Win Rate':>8} | {'Best':>8} | {'Worst':>8}")
+    print("-" * 60)
+    
+    # Prepare backtest summary
+    backtest_summary = {}
+    
+    for result in all_results:
+        sell_trades = [t for t in result['trades'] if t['type'] == 'sell']
+        if sell_trades:
+            win_rate = len([t for t in sell_trades if t['return'] > 0]) / len(sell_trades) * 100
+            best_return = max([t['return'] for t in sell_trades])
+            worst_return = min([t['return'] for t in sell_trades])
+            print(f"{result['pair_name']:12} | {result['metrics']['total_return']:8.2f}% | {len(sell_trades):6d} | " +
+                  f"{win_rate:7.1f}% | {best_return:7.2f}% | {worst_return:7.2f}%")
+            
+            # Store results in summary
+            pair_name = result['pair_name'].replace('/', '_')
+            backtest_summary[pair_name] = {
+                'total_return': result['metrics']['total_return'],
+                'n_trades': len(sell_trades),
+                'win_rate': win_rate,
+                'best_return': best_return,
+                'worst_return': worst_return
+            }
+        else:
+            print(f"{result['pair_name']:12} | {'No trades':>8} | {0:6d} | {'---':>8} | {'---':>8} | {'---':>8}")
+            
+            # Store no-trade results
+            pair_name = result['pair_name'].replace('/', '_')
+            backtest_summary[pair_name] = {
+                'total_return': 0,
+                'n_trades': 0,
+                'win_rate': 0,
+                'best_return': 0,
+                'worst_return': 0
+            }
+    
+    # Save backtest summary
+    with open('backtesting_results/backtest_summary.json', 'w') as f:
+        json.dump(backtest_summary, f, indent=4)
+    
+    print("\nDetailed results saved in backtesting_results directory")
 
 def save_trading_params(pair, params, score):
     """Save trading parameters to a file."""
@@ -356,85 +330,6 @@ def save_trading_params(pair, params, score):
         f.write(f"max_volatility={params['max_volatility']}\n")
         f.write(f"profit_lock={params['profit_lock']}\n")
         f.write(f"score={score}\n")
-
-def optimize_trading_strategy(df, model, initial_balance=1000.0, n_trials=25):
-    """
-    Optimize trading strategy parameters using Optuna.
-    Returns the best parameters found.
-    """
-    def objective(trial):
-        # Define parameter search space with simplified bounds
-        params = {
-            'prediction_horizon': trial.suggest_categorical('prediction_horizon', [4, 8]),  # Only 1h or 2h
-            'buy_threshold': trial.suggest_float('buy_threshold', 0.5, 2.0),
-            'take_profit_threshold': trial.suggest_float('take_profit_threshold', 0.5, 3.0),
-            'max_hold_hours': trial.suggest_int('max_hold_hours', 4, 12),
-            'trailing_stop_distance': trial.suggest_float('trailing_stop_distance', 0.3, 1.5),
-            'min_rsi': trial.suggest_int('min_rsi', 25, 35),
-            'max_rsi': trial.suggest_int('max_rsi', 65, 75),
-            'min_volume_ratio': trial.suggest_float('min_volume_ratio', 0.8, 1.5),
-            'max_volatility': trial.suggest_float('max_volatility', 1.0, 3.0),
-            'profit_lock_pct': trial.suggest_float('profit_lock_pct', 0.3, 0.8)
-        }
-        
-        # Use only recent data for faster optimization
-        recent_data = df.tail(1000)  # Last 1000 periods
-        features_df = create_features_for_pair(recent_data, '', params['prediction_horizon'])
-        
-        # Get features and target
-        features = features_df.drop(columns=['timestamp', 'target'])
-        if 'predicted_price' in features.columns:
-            features = features.drop(columns=['predicted_price'])
-            
-        # Train a quick model
-        X = features
-        y = features_df['target']
-        model = train_model(X, X, y, y, quick_mode=True)
-        
-        # Get predictions
-        recent_data = recent_data[:len(features)]  # Align lengths
-        recent_data['predicted_price'] = model.predict(features)
-        
-        # Run simulation with these parameters
-        results = simulate_trading(
-            df=recent_data,
-            predicted_price="predicted_price",
-            buy_threshold=params['buy_threshold'],
-            take_profit_threshold=params['take_profit_threshold'],
-            max_hold_hours=params['max_hold_hours'],
-            trailing_stop_distance=params['trailing_stop_distance'],
-            min_rsi=params['min_rsi'],
-            max_rsi=params['max_rsi'],
-            min_volume_ratio=params['min_volume_ratio'],
-            max_volatility=params['max_volatility'],
-            profit_lock_pct=params['profit_lock_pct'],
-            fee_rate=TRADING_CONFIG['risk_management']['fee_rate'],
-            initial_balance=initial_balance
-        )
-        
-        if not results['trades']:
-            return -100.0  # Penalize no trades
-        
-        returns = pd.Series([t['return_percent'] for t in results['trades'] if t['type'] == 'sell'])
-        if len(returns) < 3:  # Require at least 3 trades
-            return -50.0 - (3 - len(returns)) * 10
-            
-        # Simplified scoring
-        mean_return = returns.mean()
-        win_rate = (returns > 0).mean()
-        
-        # Basic score based on returns and win rate
-        score = mean_return * win_rate * 100
-        
-        return score
-
-    study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
-    
-    best_params = study.best_params
-    best_params['optimization_score'] = study.best_value
-    
-    return best_params
 
 if __name__ == "__main__":
     run_backtest() 

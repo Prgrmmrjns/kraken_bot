@@ -1,28 +1,20 @@
-Trade Details for DOT/EUR
-==================================================
-
-Strategy Parameters:
-prediction_horizon: 4
-buy_threshold: 1.829568
-take_profit_threshold: 2.275356
-max_hold_hours: 6
-trailing_stop_distance: 0.851071
-min_rsi: 34
-max_rsi: 75
-min_volume_ratio: 0.987959
-max_volatility: 1.364681
-profit_lock_pct: 0.557094
-optimization_score: -100.000000
-
-Individual Trades:
---------------------------------------------------
-
-Summary Metrics:
---------------------------------------------------
-final_balance: 107.1036
-total_return_pct: 0.00%
-n_trades: 0
-win_rate: 0
-avg_return_per_trade: 0
-total_fees_paid: 0
-avg_hold_time: 0
+{
+    "strategy_params": {
+        "buy_threshold": 1.670558165747535,
+        "take_profit": 1.6247661640918163,
+        "max_hold_time": 4,
+        "trailing_stop": 0.3935906555199521,
+        "target_shift": 3,
+        "target_window": 8,
+        "optimization_score": -Infinity
+    },
+    "trades": [],
+    "metrics": {
+        "final_balance": 42.805232183124296,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    }
+}

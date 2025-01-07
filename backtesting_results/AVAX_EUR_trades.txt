@@ -1,28 +1,20 @@
-Trade Details for AVAX/EUR
-==================================================
-
-Strategy Parameters:
-prediction_horizon: 4
-buy_threshold: 1.065228
-take_profit_threshold: 0.710011
-max_hold_hours: 7
-trailing_stop_distance: 1.457208
-min_rsi: 29
-max_rsi: 74
-min_volume_ratio: 1.081726
-max_volatility: 2.773303
-profit_lock_pct: 0.442095
-optimization_score: -100.000000
-
-Individual Trades:
---------------------------------------------------
-
-Summary Metrics:
---------------------------------------------------
-final_balance: 110.1154
-total_return_pct: 0.00%
-n_trades: 0
-win_rate: 0
-avg_return_per_trade: 0
-total_fees_paid: 0
-avg_hold_time: 0
+{
+    "strategy_params": {
+        "buy_threshold": 1.707128255120476,
+        "take_profit": 1.8514141701314042,
+        "max_hold_time": 4,
+        "trailing_stop": 0.46754151203770766,
+        "target_shift": 4,
+        "target_window": 6,
+        "optimization_score": -Infinity
+    },
+    "trades": [],
+    "metrics": {
+        "final_balance": 42.805232183124296,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    }
+}

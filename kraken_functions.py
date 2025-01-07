@@ -1,28 +1,37 @@
 import os
 import time
 import json
-import pandas as pd
-import numpy as np
-import requests
-import urllib.request
-import urllib.parse
+import base64
 import hmac
 import hashlib
-import base64
-from datetime import datetime
-from model_functions import create_features, train_model
-from trading_strat_params import TRADING_CONFIG, MODEL_CONFIG
-import joblib
+import urllib.parse
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 # Load environment variables
-from dotenv import load_dotenv
 load_dotenv()
+API_KEY = os.getenv('KRAKEN_API_KEY')
+API_SECRET = os.getenv('KRAKEN_API_SECRET')
+API_URL = "https://api.kraken.com"
 
-# Update trading config with API keys
-TRADING_CONFIG['api'] = {
-    'key': os.getenv("KRAKEN_API_KEY"),
-    'secret': os.getenv("KRAKEN_API_SECRET")
-}
+def get_kraken_signature(urlpath, data, secret):
+    """Generate Kraken API signature."""
+    postdata = urllib.parse.urlencode(data)
+    encoded = (str(data['nonce']) + postdata).encode()
+    message = urlpath.encode() + hashlib.sha256(encoded).digest()
+    mac = hmac.new(base64.b64decode(secret), message, hashlib.sha512)
+    sigdigest = base64.b64encode(mac.digest())
+    return sigdigest.decode()
+
+def kraken_request(uri_path, data, api_key, api_sec):
+    """Send signed Kraken API request."""
+    headers = {}
+    headers['API-Key'] = api_key
+    headers['API-Sign'] = get_kraken_signature(uri_path, data, api_sec)
+    req = requests.post((API_URL + uri_path), headers=headers, data=data)
+    return req
 
 def download_recent_ohlc(pair, interval=15, since=None):
     """Download recent OHLC data for a trading pair."""
@@ -92,38 +101,55 @@ def get_ticker(pair):
         return None
 
 def execute_order(pair, euro_amount, order_type, skip_confirm=False):
-    """Execute a buy/sell order with optional user confirmation"""
-    print(f"\n{'='*50}")
-    print(f"EXECUTING {order_type} ORDER")
-    print(f"Pair: {pair}")
-    print(f"Amount: €{euro_amount:.2f}")
-    
-    if not skip_confirm:
-        confirm = input("\nConfirm trade (y/n): ").lower()
-        if confirm != 'y':
-            print("\nTrade cancelled")
-            return False
-
+    """Execute a trade order."""
     try:
-        response = place_market_order(pair, euro_amount, order_type.lower())
-        if response and 'result' in response and 'txid' in response['result']:
-            txid = response['result']['txid'][0]
-            print(f"\n✅ {order_type} order executed successfully!")
-            print(f"Transaction ID: {txid}")
+        # Get current price to calculate volume
+        df = download_recent_ohlc(pair=pair)
+        if df is None or df.empty:
+            print(f"Could not get current price for {pair}")
+            return False
             
-            if order_type.lower() == "buy":
-                if current_price := get_current_price(pair):
-                    volume = euro_amount / current_price
-                    open_positions.append(Position(pair, current_price, volume, datetime.now()))
-                    print(f"Position added at price: €{current_price:.5f}")
-            return True
+        current_price = float(df['close'].iloc[-1])
+        volume = euro_amount / current_price  # Convert euros to crypto volume
+        
+        # Prepare the order data
+        data = {
+            "nonce": str(int(1000*time.time())),
+            "ordertype": "market",
+            "type": order_type.lower(),
+            "volume": f"{volume:.8f}",  # Use 8 decimal places for precision
+            "pair": pair,
+            "trading_agreement": "agree"
+        }
+        
+        # Get user confirmation if needed
+        if not skip_confirm:
+            confirm = input(f"Confirm {order_type} order for {volume:.8f} {pair} (€{euro_amount:.2f})? (y/n): ")
+            if confirm.lower() != 'y':
+                print("Order cancelled by user")
+                return False
+        
+        # Send the order request
+        response = kraken_request('/0/private/AddOrder', data, API_KEY, API_SECRET)
+        
+        # Check for errors
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}")
+            print(response.text)
+            return False
             
-        error_msg = response.get('error', ['Unknown error'])[0] if response else 'Failed to connect'
-        print(f"\n❌ Failed to execute {order_type} order: {error_msg}")
-        return False
+        result = response.json()
+        if result.get('error'):
+            print(f"API Error: {result['error']}")
+            return False
+            
+        # Order successful
+        order_id = result['result']['txid'][0]
+        print(f"Order executed successfully. ID: {order_id}")
+        return True
         
     except Exception as e:
-        print(f"\n❌ Error executing order: {str(e)}")
+        print(f"Error executing order: {str(e)}")
         return False
 
 class Position:
@@ -409,3 +435,36 @@ def train_and_save_model(trading_pairs):
         joblib.dump(models[pair], f'model_{pair}.joblib')
     
     return models
+
+def get_account_balance():
+    """Get the current account balance."""
+    try:
+        # For now, return the initial balance from config
+        return TRADING_CONFIG['risk_management']['total_balance']
+    except Exception as e:
+        print(f"Error getting account balance: {str(e)}")
+        return 0.0
+
+def get_open_positions():
+    """Get current open positions."""
+    try:
+        # For now, return an empty list
+        return []
+    except Exception as e:
+        print(f"Error getting open positions: {str(e)}")
+        return []
+
+def get_ticker_info(pair):
+    """Get current ticker information for a pair."""
+    try:
+        df = download_recent_ohlc(pair=pair, interval=1)
+        if df is not None and not df.empty:
+            return {
+                'price': float(df['close'].iloc[-1]),
+                'volume': float(df['volume'].iloc[-1]),
+                'timestamp': df.index[-1]
+            }
+        return None
+    except Exception as e:
+        print(f"Error getting ticker info: {str(e)}")
+        return None

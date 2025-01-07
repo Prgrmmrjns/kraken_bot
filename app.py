@@ -16,74 +16,12 @@ from kraken_functions import (
     download_recent_ohlc,
 )
 from trading_strat_params import TRADING_PAIRS, TRADING_CONFIG, MODEL_CONFIG
-from model_functions import create_features_for_pair
-
-def load_trading_params(pair):
-    """Load trading parameters from file."""
-    try:
-        filename = f"backtesting_results/{pair.replace('/', '_')}_trades.txt"
-        params = {}
-        
-        with open(filename, 'r') as f:
-            lines = f.readlines()
-            for i, line in enumerate(lines):
-                if line.strip() == "Strategy Parameters:":
-                    param_lines = lines[i+1:i+11]
-                    for param_line in param_lines:
-                        if ':' in param_line:
-                            key, value = param_line.strip().split(': ')
-                            key_mapping = {
-                                'buy_threshold': 'buy_threshold',
-                                'take_profit_threshold': 'take_profit',
-                                'max_hold_hours': 'max_hold_time',
-                                'trailing_stop_distance': 'trailing_stop',
-                                'min_rsi': 'min_rsi',
-                                'max_rsi': 'max_rsi',
-                                'min_volume_ratio': 'min_volume_ratio',
-                                'max_volatility': 'max_volatility',
-                                'profit_lock_pct': 'profit_lock',
-                                'optimization_score': 'score'
-                            }
-                            for old_key, new_key in key_mapping.items():
-                                if old_key in key:
-                                    params[new_key] = float(value)
-                                    break
-                    break
-        
-        if params:
-            return params
-        
-        print(f"❌ No parameters found in {filename}. Make sure to run backtesting.py first. Using default parameters for now.")
-        raise ValueError("Invalid file format")
-        
-    except Exception as e:
-        print(f"⚠️ Using default parameters for {pair}")
-        return {
-            'buy_threshold': 1.5,
-            'take_profit': 2.0,
-            'max_hold_time': 24,
-            'trailing_stop': 0.5,
-            'min_rsi': 30,
-            'max_rsi': 70,
-            'min_volume_ratio': 1.0,
-            'max_volatility': 3.0,
-            'profit_lock': 0.5,
-            'score': 0.0
-        }
-
-def get_model_features(model_file):
-    """Get feature names from the trained model."""
-    model = joblib.load(model_file)
-    try:
-        return model.feature_names_
-    except AttributeError:
-        # If feature names not stored in model, load from model info
-        try:
-            with open('model_info.txt', 'r') as f:
-                model_info = json.loads(f.read())
-                return model_info['data_info']['features']
-        except:
-            return None
+from model_functions import (
+    create_features_for_pair,
+    get_model_features,
+    load_trading_params
+)
+from backtesting import run_backtest
 
 def prepare_features(features_df, model_features):
     """Prepare features to match model's expected features."""
@@ -102,12 +40,12 @@ def prepare_features(features_df, model_features):
     # Return only the features the model expects, in the correct order
     return features_df[model_features]
 
-def is_prediction_realistic(prediction, current_price):
-    """Check if prediction is within realistic bounds."""
-    # Maximum realistic daily return (e.g., 10%)
-    MAX_REALISTIC_RETURN = 10.0
-    
-    return abs(prediction) <= MAX_REALISTIC_RETURN
+def should_run_backtest(last_backtest_time):
+    """Check if we should run backtest based on time elapsed."""
+    if last_backtest_time is None:
+        return True
+    hours_elapsed = (datetime.now() - last_backtest_time).total_seconds() / 3600
+    return hours_elapsed >= 6
 
 def main():
     """Main trading bot function."""
@@ -121,16 +59,31 @@ def main():
 
     # Initialize balance from trading config
     available_balance = TRADING_CONFIG['risk_management']['total_balance']
-    print(f"\n💰 Initial Balance: €{available_balance:.2f}")
+    last_backtest_time = None
 
-    # Load trading parameters for each pair
-    pair_params = {}
-    for pair, display_name in TRADING_PAIRS:
-        params = load_trading_params(display_name)
-        pair_params[pair] = params
-    
     while True:
         try:
+            # Check if we need to run backtest
+            if should_run_backtest(last_backtest_time):
+                print("\n🔄 Running scheduled backtest...")
+                run_backtest()
+                last_backtest_time = datetime.now()
+                print(f"✅ Backtest completed at {last_backtest_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+            # Load trading parameters for each pair
+            pair_params = {}
+            active_pairs = []
+            for pair, display_name in TRADING_PAIRS:
+                params = load_trading_params(display_name)
+                if params is not None:  # Only add pairs that have valid parameters
+                    pair_params[pair] = params
+                    active_pairs.append((pair, display_name))
+            
+            if not active_pairs:
+                print("\n⚠️ No active trading pairs found. Waiting for next backtest...")
+                time.sleep(300)  # Wait 5 minutes before checking again
+                continue
+
             # Check positions and print status
             positions = check_and_manage_positions()
             print(f"\n{'='*50}")
@@ -144,7 +97,7 @@ def main():
             best_opportunity = None
             best_prediction = float('-inf')
             
-            for pair, display_name in TRADING_PAIRS:
+            for pair, display_name in active_pairs:  # Only loop through active pairs
                 try:
                     # Get current market data
                     df = download_recent_ohlc(pair=pair)
@@ -207,7 +160,6 @@ def main():
                 best_opp = max(opportunities, key=lambda x: x['predicted_return'])
                 
                 print("\n🎯 Best Trading Opportunity Found!")
-                print(f"\n{'='*30}")
                 print(f"Trading Pair: {best_opp['display_name']}")
                 print(f"Current Price: €{best_opp['current_price']:.5f}")
                 print(f"Predicted Return: {best_opp['predicted_return']:+.2f}%")
@@ -217,23 +169,27 @@ def main():
                 # Calculate position size based on risk management
                 position_size = min(
                     available_balance,
-                    available_balance * (float(os.getenv('RISK_PERCENTAGE', 1)) / 100)
+                    max(10.0, available_balance * (float(os.getenv('RISK_PERCENTAGE', 10)) / 100))  # Minimum €10, default 10% risk
                 )
                 
                 if position_size < 10.0:  # Minimum trade amount
                     print(f"\n⚠️ Available balance too low for trading (minimum €10.00)")
                     print(f"Current balance: €{available_balance:.2f}")
                 else:
-                    print(f"Suggested Position Size: €{position_size:.2f}")
+                    print(f"Position Size: €{position_size:.2f}")
                     
-                    # Ask for user confirmation ONCE
-                    confirm = input(f"\nExecute trade for {best_opp['display_name']} at €{best_opp['current_price']:.2f}? (y/n): ").lower()
-                    if confirm == 'y':
+                    # Execute trade based on confirmation settings
+                    should_confirm = TRADING_CONFIG['behavior']['confirm_order']
+                    if should_confirm:
+                        confirm = input(f"\nExecute trade for {best_opp['display_name']} at €{best_opp['current_price']:.2f}? (y/n): ").lower()
+                        should_execute = confirm == 'y'
+                    else:
+                        should_execute = True
+                        
+                    if should_execute:
                         try:
-                            # Execute the trade using Kraken's internal symbol
                             if execute_order(best_opp['pair'], position_size, "BUY", skip_confirm=True):
                                 print(f"✅ Buy order executed for {best_opp['display_name']}")
-                                # Update available balance
                                 available_balance -= position_size
                             else:
                                 print(f"❌ Failed to execute buy order for {best_opp['display_name']}")
@@ -250,16 +206,16 @@ def main():
                     print(f"Predicted Return: {best_opportunity['predicted_return']:+.2f}%")
                     print(f"Buy Threshold: {best_opportunity['params']['buy_threshold']}%")
             
-            print("\n💤 Sleeping for 5 minutes...")
-            time.sleep(300)  # Sleep for 5 minutes
+            print(f"\n💤 Sleeping for {MODEL_CONFIG['interval_minutes']} minutes...")
+            time.sleep(MODEL_CONFIG['interval_minutes'] * 60)
             
         except KeyboardInterrupt:
             print("\n👋 Trading bot stopped by user.")
             break
         except Exception as e:
             print(f"\n❌ Error: {str(e)}")
-            print("🔄 Retrying in 5 minutes...")
-            time.sleep(300)
+            print(f"🔄 Retrying in {MODEL_CONFIG['interval_minutes']} minutes...")
+            time.sleep(MODEL_CONFIG['interval_minutes'] * 60)
 
 if __name__ == "__main__":
     main()

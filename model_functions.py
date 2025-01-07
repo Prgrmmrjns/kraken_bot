@@ -1,55 +1,39 @@
 import pandas as pd
 import numpy as np
-from lightgbm import LGBMRegressor, LGBMClassifier
-from sklearn.metrics import mean_squared_error, log_loss, accuracy_score
-from sklearn.model_selection import TimeSeriesSplit
+from lightgbm import LGBMRegressor
+from sklearn.metrics import mean_squared_error
 import optuna
 import joblib
 import json
 from datetime import datetime
 from trading_strat_params import MODEL_CONFIG, TRADING_CONFIG, TRADING_PAIRS
+import os
 
 # Set Optuna's logging level to WARNING
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-def create_features_for_pair(df, pair_name, prediction_horizon=8):
-    """
-    Create technical indicators as features for a single pair.
-    prediction_horizon: number of 15-min periods to look ahead (4=1h, 8=2h, 16=4h)
-    """
+def create_features_for_pair(df, pair_name, target_shift=4, target_window=4):
+    """Create essential technical indicators as features."""
     df = df.copy()
     
     # Convert timestamp to datetime if not already
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     
-    # Basic price changes
-    for period in [1, 2, 3, 4, 8]:  # Looking at recent price changes
-        df[f'price_change_{period}'] = df['close'].pct_change(period, fill_method=None) * 100
+    # Price changes (1 and 5 periods)
+    df['price_change_1'] = df['close'].pct_change(1, fill_method=None) * 100
+    df['price_change_5'] = df['close'].pct_change(5, fill_method=None) * 100
     
     # Volume features
-    df['volume_change'] = df['volume'].pct_change(fill_method=None)
-    df['volume_ma5'] = df['volume'].rolling(window=5).mean()
-    df['volume_ma20'] = df['volume'].rolling(window=20).mean()
-    df['volume_ratio'] = df['volume'] / df['volume_ma5']
-    df['volume_ratio_20'] = df['volume'] / df['volume_ma20']
+    df['volume_ratio'] = df['volume'] / df['volume'].rolling(window=5).mean()
     
-    # Moving averages
-    for period in [5, 10, 20, 50]:
-        df[f'sma_{period}'] = df['close'].rolling(window=period).mean()
-        df[f'sma_dist_{period}'] = (df['close'] - df[f'sma_{period}']) / df[f'sma_{period}'] * 100
-        
-        # Exponential moving averages
-        df[f'ema_{period}'] = df['close'].ewm(span=period, adjust=False).mean()
-        df[f'ema_dist_{period}'] = (df['close'] - df[f'ema_{period}']) / df[f'ema_{period}'] * 100
+    # Moving averages (5 and 20 periods)
+    df['sma_5'] = df['close'].rolling(window=5).mean()
+    df['sma_20'] = df['close'].rolling(window=20).mean()
+    df['sma_dist_5'] = (df['close'] - df['sma_5']) / df['sma_5'] * 100
+    df['sma_dist_20'] = (df['close'] - df['sma_20']) / df['sma_20'] * 100
     
     # Volatility
-    df['high_low_range'] = (df['high'] - df['low']) / df['close'] * 100
     df['volatility'] = df['close'].pct_change(fill_method=None).rolling(window=5).std() * 100
-    df['volatility_20'] = df['close'].pct_change(fill_method=None).rolling(window=20).std() * 100
-    
-    # VWAP and related
-    df['vwap_dist'] = (df['close'] - df['vwap']) / df['vwap'] * 100
-    df['vwap_change'] = df['vwap'].pct_change(fill_method=None) * 100
     
     # RSI
     delta = df['close'].diff()
@@ -58,16 +42,8 @@ def create_features_for_pair(df, pair_name, prediction_horizon=8):
     rs = gain / loss
     df['rsi'] = 100 - (100 / (1 + rs))
     
-    # Create target based on prediction horizon
-    if prediction_horizon == 'flex_max':
-        # Look at next 16 periods (4 hours) and find maximum return
-        future_returns = pd.DataFrame()
-        for i in range(1, 17):  # Up to 4 hours ahead
-            future_returns[f'return_{i}'] = df['close'].shift(-i).pct_change(i, fill_method=None) * 100
-        df['target'] = future_returns.max(axis=1)
-    else:
-        # Fixed horizon prediction - calculate percentage return
-        df['target'] = df['close'].shift(-prediction_horizon).pct_change(prediction_horizon, fill_method=None) * 100
+    # Target with dynamic shift and window
+    df['target'] = df['close'].shift(-target_shift).pct_change(target_window, fill_method=None) * 100
     
     # Clean up NaN values
     df = df.dropna()
@@ -195,94 +171,77 @@ def train_model(X_train, X_val, y_train, y_val, quick_mode=False):
 
     return final_model
 
-def optimize_trading_strategy(df, model, initial_balance=1000.0, n_trials=50):
-    """
-    Optimize trading strategy parameters using Optuna.
-    Returns the best parameters found.
-    """
+def optimize_trading_strategy(df, model, initial_balance=1000.0, n_trials=10):
+    """Optimize trading strategy parameters using Optuna."""
     def objective(trial):
-        # Define parameter search space with wider bounds
+        # Define parameter search space with simplified bounds
         params = {
-            'prediction_horizon': trial.suggest_categorical('prediction_horizon', [4, 8, 16, 'flex_max']),  # 1h, 2h, 4h, or flex max
-            'buy_threshold': trial.suggest_float('buy_threshold', 0.2, 3.0),
-            'take_profit_threshold': trial.suggest_float('take_profit_threshold', 0.5, 5.0),
-            'max_hold_hours': trial.suggest_int('max_hold_hours', 1, 24),
-            'trailing_stop_distance': trial.suggest_float('trailing_stop_distance', 0.2, 2.0),
-            'min_rsi': trial.suggest_int('min_rsi', 20, 40),
-            'max_rsi': trial.suggest_int('max_rsi', 60, 80),
-            'min_volume_ratio': trial.suggest_float('min_volume_ratio', 0.5, 2.0),
-            'max_volatility': trial.suggest_float('max_volatility', 1.0, 5.0),
-            'profit_lock_pct': trial.suggest_float('profit_lock_pct', 0.3, 1.0)
+            'buy_threshold': trial.suggest_float('buy_threshold', 0.5, 2.0),
+            'take_profit': trial.suggest_float('take_profit', 0.5, 2.0),
+            'max_hold_time': trial.suggest_int('max_hold_time', 4, 8),  # 1-2 hours
+            'trailing_stop': trial.suggest_float('trailing_stop', 0.3, 1.0),
+            'target_shift': trial.suggest_int('target_shift', 2, 8),    # 30min to 2 hours
+            'target_window': trial.suggest_int('target_window', 2, 8)   # Prediction window size
         }
         
-        # Prepare data with the selected prediction horizon
-        data = df.copy()
-        features_df = create_features_for_pair(data, '', params['prediction_horizon'])
+        # Use only recent data for faster optimization
+        recent_data = df.tail(1000)  # Last 1000 periods
+        features_df = create_features_for_pair(
+            recent_data, 
+            '', 
+            target_shift=params['target_shift'],
+            target_window=params['target_window']
+        )
         
         # Get features and target
         features = features_df.drop(columns=['timestamp', 'target'])
         if 'predicted_price' in features.columns:
             features = features.drop(columns=['predicted_price'])
-            
-        # Train a new model with the selected prediction horizon
-        X = features
-        y = features_df['target']  # Target is already set correctly in create_features_for_pair
         
-        # Train model
-        model = train_model(X, X, y, y, quick_mode=True)  # Use quick mode for optimization
+        # Train a quick model
+        X = features
+        y = features_df['target']
+        model = train_model(X, X, y, y, quick_mode=True)
         
         # Get predictions
-        data = data[:len(features)]  # Align lengths
-        data['predicted_price'] = model.predict(features)
+        recent_data = recent_data[:len(features)]  # Align lengths
+        recent_data['predicted_price'] = model.predict(features)
         
         # Run simulation with these parameters
         results = simulate_trading(
-            df=data,
+            df=recent_data,
             predicted_price="predicted_price",
             buy_threshold=params['buy_threshold'],
-            take_profit_threshold=params['take_profit_threshold'],
-            max_hold_hours=params['max_hold_hours'],
-            trailing_stop_distance=params['trailing_stop_distance'],
-            min_rsi=params['min_rsi'],
-            max_rsi=params['max_rsi'],
-            min_volume_ratio=params['min_volume_ratio'],
-            max_volatility=params['max_volatility'],
-            profit_lock_pct=params['profit_lock_pct'],
+            take_profit=params['take_profit'],
+            max_hold_time=params['max_hold_time'],
+            trailing_stop=params['trailing_stop'],
             fee_rate=TRADING_CONFIG['risk_management']['fee_rate'],
-            slippage_rate=0.0005,
             initial_balance=initial_balance
         )
         
-        if not results['trades']:
-            return -100.0  # Penalize no trades
+        # Calculate score based on multiple factors
+        sell_trades = [t for t in results['trades'] if t['type'] == 'sell']
+        if not sell_trades:
+            return float('-inf')  # Penalize no trades
         
-        returns = pd.Series([t['return_percent'] for t in results['trades'] if t['type'] == 'sell'])
-        if len(returns) < 5:  # Require at least 5 trades
-            return -50.0 - (5 - len(returns)) * 10  # Penalize based on how far from minimum trades
-            
-        # Calculate risk-adjusted return metrics
-        mean_return = returns.mean()
-        max_drawdown = abs(returns.min())
-        win_rate = (returns > 0).mean()
+        n_trades = len(sell_trades)
+        if n_trades < 3:  # Require at least 3 trades
+            return float('-inf')
         
-        # Penalize strategies with poor risk management
-        if max_drawdown > 3.0:  # Max drawdown > 3%
-            return -10.0 - max_drawdown  # Penalize based on drawdown size
-        if win_rate < 0.6:  # Win rate < 60%
-            return -20.0 - (0.6 - win_rate) * 100  # Penalize based on how far from target win rate
-            
-        # Calculate Sharpe-like ratio with minimum volatility floor
-        volatility = max(returns.std(), 0.001)  # Minimum volatility to avoid division by zero
-        sharpe = mean_return / volatility
+        returns = [t['return'] for t in sell_trades]
+        mean_return = np.mean(returns)
+        win_rate = len([r for r in returns if r > 0]) / len(returns)
+        sharpe_ratio = np.mean(returns) / (np.std(returns) + 1e-6)  # Add small epsilon to avoid division by zero
         
-        # Combine multiple metrics for final score
-        score = (
-            sharpe * 2.0 +                # Reward risk-adjusted returns
-            win_rate * 3.0 +             # Reward high win rate
-            mean_return * 2.0 -          # Reward high returns
-            max_drawdown * 1.0 +         # Penalize drawdowns
-            len(returns) * 0.1           # Small reward for more trades
-        )
+        # Score combines multiple factors:
+        # - Mean return (weighted by 1)
+        # - Win rate (weighted by 50 to scale it similarly to returns)
+        # - Sharpe ratio (weighted by 2 to emphasize risk-adjusted returns)
+        # - Number of trades bonus (log scale to not overemphasize)
+        score = (mean_return + 
+                win_rate * 50 + 
+                sharpe_ratio * 2 + 
+                np.log1p(n_trades))
         
         return score
 
@@ -297,31 +256,22 @@ def optimize_trading_strategy(df, model, initial_balance=1000.0, n_trials=50):
 def simulate_trading(
     df, 
     predicted_price="predicted_price",
-    buy_threshold=3.0,
-    take_profit_threshold=2.0,
-    max_hold_hours=72,
-    fee_rate=0.0009,
-    slippage_rate=0.0005, 
+    buy_threshold=1.5,
+    take_profit=1.0,
+    max_hold_time=4,  # 1 hour
+    fee_rate=0.0026,
     initial_balance=100.0,
-    trailing_stop_distance=1.5,
-    min_rsi=30,
-    max_rsi=70,
-    min_volume_ratio=0.8,
-    max_volatility=3.0,
-    profit_lock_pct=0.5
+    trailing_stop=0.5
 ):
-    """
-    Run a trading simulation with improved risk management.
-    """
+    """Run a simplified trading simulation."""
     results = {
         'trades': [],
         'metrics': {},
-        'positions': []
     }
     
     data = df.copy()
     
-    # Ensure index is datetime
+    # Ensure datetime index
     if not isinstance(data.index, pd.DatetimeIndex):
         if 'timestamp' in data.columns:
             data.index = pd.to_datetime(data['timestamp'])
@@ -329,168 +279,261 @@ def simulate_trading(
         else:
             data.index = pd.to_datetime(data.index)
     
-    # Calculate the % difference between predicted future price and current close
-    data["price_increase"] = (data[predicted_price] - data["close"]) / data["close"] * 100
-    data["signal"] = data["price_increase"] > buy_threshold
+    # Calculate predicted returns
+    data["predicted_return"] = (data[predicted_price] - data["close"]) / data["close"] * 100
+    data["signal"] = data["predicted_return"] > buy_threshold
 
     balance = initial_balance
     position = 0.0
     entry_index = None
     entry_price = 0.0
     trades = []
-    trailing_stop = None
-    max_position_return = float('-inf')
-    
-    # Risk management: maximum position size as % of balance
-    max_position_pct = 0.95  # Never use more than 95% of balance for a trade
-    min_trade_amount = 10.0  # Minimum trade size in EUR
+    trailing_stop_price = None
     
     for i in range(len(data)):
         current_price = data["close"].iloc[i]
         current_time = data.index[i]
         
-        # Check if we are not in a position
+        # Check for entry
         if position == 0 and data["signal"].iloc[i]:
-            # Entry conditions
-            rsi = data['rsi'].iloc[i]
-            volume_ratio = data['volume_ratio'].iloc[i]
-            volatility = data['volatility'].iloc[i]
-            
-            # Skip if conditions not met
-            if not (min_rsi <= rsi <= max_rsi and 
-                   volume_ratio >= min_volume_ratio and 
-                   volatility <= max_volatility):
-                continue
-                
-            # Trend confirmation
-            if not all(data[f'ema_dist_{period}'].iloc[i] > 0 for period in [5, 10]):
-                continue
-                
-            # Check recent price action
-            if i > 0:
-                price_change = (current_price - data["close"].iloc[i-1]) / data["close"].iloc[i-1] * 100
-                if price_change < -0.5:
-                    continue
-            
-            # Calculate position size (account for fees and slippage)
-            total_cost_factor = (1 + fee_rate) * (1 + slippage_rate)
-            max_position_size = (balance * max_position_pct) / (current_price * total_cost_factor)
-            
-            # Skip if minimum trade amount not met
-            if max_position_size * current_price < min_trade_amount:
-                continue
-            
-            # Slippage on buy
-            buy_price = current_price * (1 + slippage_rate)
-            position = max_position_size
-            entry_cost = position * buy_price
-            fees_paid = entry_cost * fee_rate
-            balance = balance - entry_cost - fees_paid
-            
-            entry_price = buy_price
+            # Simple position sizing (90% of balance)
+            position = (balance * 0.9) / current_price
+            entry_price = current_price
             entry_index = i
-            trailing_stop = -trailing_stop_distance
-            max_position_return = float('-inf')
+            trailing_stop_price = entry_price * (1 - trailing_stop/100)
+            
+            # Record trade
+            cost = position * current_price
+            fees = cost * fee_rate
+            balance -= (cost + fees)
+            
             trades.append({
                 'type': 'buy',
                 'timestamp': current_time,
-                'price': buy_price,
+                'price': current_price,
                 'size': position,
-                'cost': entry_cost,
-                'fees_paid': fees_paid,
-                'balance_after': balance,
-                'predicted_price': data[predicted_price].iloc[i]
+                'fees': fees,
+                'balance': balance
             })
 
-        # If we're in a position, check exit conditions
+        # Check for exit
         elif position > 0:
-            current_return = (current_price - entry_price) / entry_price * 100
-            max_position_return = max(max_position_return, current_return)
-            
-            # Update trailing stop if price moved higher
-            if current_return > trailing_stop + trailing_stop_distance:
-                trailing_stop = current_return - trailing_stop_distance
-            
-            # Lock in profits if we've reached a good gain
-            if current_return >= profit_lock_pct and trailing_stop < 0:
-                trailing_stop = profit_lock_pct * 0.5  # Lock in 50% of the profit
+            # Update trailing stop
+            if current_price > entry_price:
+                new_stop = current_price * (1 - trailing_stop/100)
+                trailing_stop_price = max(trailing_stop_price, new_stop)
             
             # Exit conditions
             exit_conditions = [
-                current_return >= take_profit_threshold,  # Take profit
-                current_return <= trailing_stop,          # Trailing stop hit
-                (i - entry_index) >= max_hold_hours,     # Max hold time reached
-                data["price_increase"].iloc[i] <= -1.0,  # Strong negative prediction
-                current_return <= -2.0,                  # Hard stop loss
-                max_position_return - current_return >= 2.0  # Maximum drawdown from peak
+                current_price >= entry_price * (1 + take_profit/100),  # Take profit
+                current_price <= trailing_stop_price,                   # Trailing stop
+                (i - entry_index) >= max_hold_time                     # Max hold time
             ]
             
             if any(exit_conditions):
-                # Slippage on sell
-                sell_price = current_price * (1 - slippage_rate)
-                exit_value = position * sell_price
-                fees_paid = exit_value * fee_rate
-                balance = balance + exit_value - fees_paid
-                
-                # Calculate actual return including fees
-                entry_trade = trades[-1]  # Get the corresponding entry trade
-                total_fees = entry_trade['fees_paid'] + fees_paid
-                net_pnl = exit_value - entry_trade['cost'] - total_fees
-                actual_return = (net_pnl / entry_trade['cost']) * 100
+                # Calculate returns
+                exit_value = position * current_price
+                fees = exit_value * fee_rate
+                balance += (exit_value - fees)
                 
                 trades.append({
                     'type': 'sell',
                     'timestamp': current_time,
-                    'price': sell_price,
+                    'price': current_price,
                     'size': position,
-                    'value': exit_value,
-                    'fees_paid': fees_paid,
-                    'total_fees': total_fees,
-                    'net_pnl': net_pnl,
-                    'balance_after': balance,
-                    'hours_held': i - entry_index,
-                    'return_percent': actual_return  # Include fees in return calculation
+                    'fees': fees,
+                    'balance': balance,
+                    'return': ((current_price - entry_price) / entry_price * 100),
+                    'hours_held': (i - entry_index) / 4
                 })
-                position = 0
-    
-    # Final liquidation if still in position
-    if position > 0:
-        sell_price = data["close"].iloc[-1] * (1 - slippage_rate)
-        exit_value = position * sell_price
-        fees_paid = exit_value * fee_rate
-        balance = balance + exit_value - fees_paid
-        
-        # Calculate actual return including fees
-        entry_trade = trades[-1]
-        total_fees = entry_trade['fees_paid'] + fees_paid
-        net_pnl = exit_value - entry_trade['cost'] - total_fees
-        actual_return = (net_pnl / entry_trade['cost']) * 100
-        
-        trades.append({
-            'type': 'sell',
-            'timestamp': data.index[-1],
-            'price': sell_price,
-            'size': position,
-            'value': exit_value,
-            'fees_paid': fees_paid,
-            'total_fees': total_fees,
-            'net_pnl': net_pnl,
-            'balance_after': balance,
-            'hours_held': len(data) - entry_index,
-            'return_percent': actual_return
-        })
+                
+                position = 0.0
+                entry_price = 0.0
+                trailing_stop_price = None
     
     # Calculate metrics
     sell_trades = [t for t in trades if t['type'] == 'sell']
     results['trades'] = trades
     results['metrics'] = {
         'final_balance': balance,
-        'total_return_pct': (balance - initial_balance) / initial_balance * 100,
+        'total_return': ((balance - initial_balance) / initial_balance * 100),
         'n_trades': len(sell_trades),
-        'win_rate': len([t for t in sell_trades if t['return_percent'] > 0]) / len(sell_trades) if sell_trades else 0,
-        'avg_return_per_trade': np.mean([t['return_percent'] for t in sell_trades]) if sell_trades else 0,
-        'total_fees_paid': sum(t['fees_paid'] for t in trades),
-        'avg_hold_time': np.mean([t['hours_held'] for t in sell_trades]) if sell_trades else 0
+        'win_rate': len([t for t in sell_trades if t['return'] > 0]) / len(sell_trades) if sell_trades else 0,
+        'avg_return': np.mean([t['return'] for t in sell_trades]) if sell_trades else 0,
+        'total_fees': sum(t['fees'] for t in trades)
     }
     
     return results
+
+def get_model_features(model_file):
+    """Get the list of features used by the model."""
+    try:
+        model = joblib.load(model_file)
+        if hasattr(model, 'feature_names_in_'):
+            return list(model.feature_names_in_)
+        return None
+    except Exception as e:
+        print(f"Error getting model features: {str(e)}")
+        return None
+
+def prepare_features(features_df, expected_features):
+    """Prepare features to match model's expectations."""
+    if expected_features is None:
+        return features_df
+    
+    try:
+        # Drop target column if present
+        if 'target' in features_df.columns:
+            features_df = features_df.drop(columns=['target'])
+        
+        # Check if all expected features are present
+        missing_features = set(expected_features) - set(features_df.columns)
+        if missing_features:
+            print(f"Missing features: {missing_features}")
+            return None
+        
+        # Select and order features to match model's expectations
+        return features_df[expected_features]
+        
+    except Exception as e:
+        print(f"Error preparing features: {str(e)}")
+        return None
+
+def evaluate_trading_opportunities(trading_pairs, models, pair_params):
+    """Evaluate trading opportunities for all pairs."""
+    opportunities = []
+    best_opportunity = None
+    best_prediction = float('-inf')
+    
+    for pair, display_name in trading_pairs:
+        try:
+            # Get current market data
+            df = download_recent_ohlc(pair=pair)
+            if df is None or len(df) < 50:
+                continue
+            
+            # Use model
+            model = models.get(pair)
+            if model is None:
+                continue
+            
+            # Create and prepare features
+            features_df = create_features_for_pair(df, display_name)
+            if features_df is None:
+                continue
+            
+            model_features = get_model_features(f'models/model_{pair}.joblib')
+            features = prepare_features(features_df, model_features)
+            if features is None:
+                continue
+            
+            # Make prediction
+            prediction = model.predict(features)[-1]
+            current_price = float(df['close'].iloc[-1])
+            
+            # Track best opportunity
+            if prediction > best_prediction:
+                best_prediction = prediction
+                best_opportunity = {
+                    'pair': pair,
+                    'display_name': display_name,
+                    'current_price': current_price,
+                    'predicted_return': prediction,
+                    'params': pair_params[pair]
+                }
+            
+            # Check trading conditions
+            params = pair_params[pair]
+            if prediction > params['buy_threshold']:
+                opportunities.append({
+                    'pair': pair,
+                    'display_name': display_name,
+                    'current_price': current_price,
+                    'predicted_return': prediction,
+                    'params': params
+                })
+        
+        except Exception as e:
+            print(f"Error processing {display_name}: {str(e)}")
+            continue
+    
+    return opportunities, best_opportunity
+
+def calculate_position_size(available_balance, risk_percentage):
+    """Calculate position size based on available balance and risk percentage."""
+    if available_balance < 10.0:
+        return 0.0
+    
+    # Ensure minimum position size is €10 if balance allows
+    position_size = max(10.0, available_balance * (risk_percentage / 100))
+    
+    # Don't risk more than the available balance
+    return min(position_size, available_balance)
+
+def get_safe_pairs():
+    """Get list of pairs that had positive returns in backtesting."""
+    try:
+        with open('backtesting_results/backtest_summary.json', 'r') as f:
+            backtest_data = json.load(f)
+            safe_pairs = []
+            for pair_name, data in backtest_data.items():
+                if data['total_return'] > 0:
+                    # Convert back to display name format (e.g., 'BTC_EUR' -> 'BTC/EUR')
+                    display_name = pair_name.replace('_', '/')
+                    safe_pairs.append(display_name)
+            return safe_pairs
+    except Exception as e:
+        print(f"Error loading safe pairs: {str(e)}")
+        return []
+
+def load_trading_params(pair):
+    """Load trading parameters from file."""
+    try:
+        filename = f"backtesting_results/{pair.replace('/', '_')}_trades.txt"
+        
+        with open(filename, 'r') as f:
+            data = json.load(f)
+            
+            # Check if we should only use safe pairs
+            if TRADING_CONFIG['behavior']['only_safe_pairs']:
+                safe_pairs = get_safe_pairs()
+                if pair not in safe_pairs:
+                    print(f"⚠️ Skipping {pair} - not in safe pairs list")
+                    return None
+            
+            return data['strategy_params']
+        
+    except Exception as e:
+        print(f"⚠️ Using default parameters for {pair}")
+        return {
+            'buy_threshold': 1.5,
+            'take_profit': 2.0,
+            'max_hold_time': 4,  # 1 hour
+            'trailing_stop': 0.5,
+            'optimization_score': 0.0
+        }
+
+def initialize_trading(trading_pairs):
+    """Initialize trading parameters and models."""
+    pair_params = {}
+    models = {}
+    
+    for pair, display_name in trading_pairs:
+        pair_params[pair] = load_trading_params(display_name)
+        model_file = f'models/model_{pair}.joblib'
+        if os.path.exists(model_file):
+            models[pair] = joblib.load(model_file)
+    
+    return pair_params, models
+
+def handle_trading_opportunity(opportunity, position_size, auto_confirm=None):
+    """Handle a trading opportunity."""
+    if opportunity and position_size >= 10.0:
+        # Use the config setting if auto_confirm is not explicitly provided
+        should_confirm = False if auto_confirm is None else not auto_confirm
+        should_confirm = should_confirm and TRADING_CONFIG['behavior']['confirm_order']
+        
+        if execute_order(opportunity['pair'], position_size, "BUY", skip_confirm=not should_confirm):
+            print(f"Buy order executed for {opportunity['display_name']}")
+            return True, position_size
+    return False, 0.0

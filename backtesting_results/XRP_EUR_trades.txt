@@ -1,76 +1,39 @@
-Trade Details for XRP/EUR
-==================================================
-
-Strategy Parameters:
-prediction_horizon: 8
-buy_threshold: 1.272860
-take_profit_threshold: 0.982496
-max_hold_hours: 11
-trailing_stop_distance: 0.911662
-min_rsi: 27
-max_rsi: 72
-min_volume_ratio: 1.055697
-max_volatility: 1.333013
-profit_lock_pct: 0.448384
-optimization_score: 1.153668
-
-Individual Trades:
---------------------------------------------------
-
-Trade #1:
-Entry Time: 2024-12-31 12:30:00
-Entry Price: €2.0070
-Position Size: 47.2115
-Entry Cost: €94.7536
-Entry Fees: €0.2464
-Exit Time: 2024-12-31 12:45:00
-Exit Price: €2.0025
-Exit Value: €94.5414
-Exit Fees: €0.2458
-Total Fees: €0.4922
-Net P&L: €-0.7044
-Return: -0.74%
-Duration: 1.0 hours
-Balance After: €99.2956
-
-Trade #2:
-Entry Time: 2025-01-01 10:30:00
-Entry Price: €2.0391
-Position Size: 46.1413
-Entry Cost: €94.0862
-Entry Fees: €0.2446
-Exit Time: 2025-01-01 11:15:00
-Exit Price: €2.0544
-Exit Value: €94.7933
-Exit Fees: €0.2465
-Total Fees: €0.4911
-Net P&L: €0.2159
-Return: 0.23%
-Duration: 3.0 hours
-Balance After: €99.5116
-
-Trade #3:
-Entry Time: 2025-01-01 23:15:00
-Entry Price: €2.2511
-Position Size: 41.8868
-Entry Cost: €94.2908
-Entry Fees: €0.2452
-Exit Time: 2025-01-02 00:00:00
-Exit Price: €2.3074
-Exit Value: €96.6508
-Exit Fees: €0.2513
-Total Fees: €0.4964
-Net P&L: €1.8635
-Return: 1.98%
-Duration: 3.0 hours
-Balance After: €101.3751
-
-Summary Metrics:
---------------------------------------------------
-final_balance: 101.3751
-total_return_pct: 1.38%
-n_trades: 3
-win_rate: 0.6667
-avg_return_per_trade: 0.4875
-total_fees_paid: €1.4797
-avg_hold_time: 2.3333
+{
+    "strategy_params": {
+        "buy_threshold": 1.633788631320412,
+        "take_profit": 1.0449094028465415,
+        "max_hold_time": 5,
+        "trailing_stop": 0.41264896420447705,
+        "target_shift": 2,
+        "target_window": 5,
+        "optimization_score": 35.111516434043104
+    },
+    "trades": [
+        {
+            "type": "buy",
+            "timestamp": "2025-01-01 14:00:00",
+            "price": 2.10385,
+            "size": 42.77871521258645,
+            "fees": 0.23399999999999999,
+            "balance": 9.766000000000005
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-01 14:30:00",
+            "price": 2.0904,
+            "size": 42.77871521258645,
+            "fees": 0.23250402832901582,
+            "balance": 98.95812225206168,
+            "return": -0.6393041328992173,
+            "hours_held": 0.5
+        }
+    ],
+    "metrics": {
+        "final_balance": 98.95812225206168,
+        "total_return": -1.0418777479383152,
+        "n_trades": 1,
+        "win_rate": 0.0,
+        "avg_return": -0.6393041328992173,
+        "total_fees": 0.46650402832901583
+    }
+}

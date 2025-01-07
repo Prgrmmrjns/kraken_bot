@@ -1,28 +1,20 @@
-Trade Details for ETH/EUR
-==================================================
-
-Strategy Parameters:
-prediction_horizon: 8
-buy_threshold: 1.335546
-take_profit_threshold: 1.212557
-max_hold_hours: 11
-trailing_stop_distance: 0.829674
-min_rsi: 25
-max_rsi: 71
-min_volume_ratio: 0.973658
-max_volatility: 1.636693
-profit_lock_pct: 0.632714
-optimization_score: -100.000000
-
-Individual Trades:
---------------------------------------------------
-
-Summary Metrics:
---------------------------------------------------
-final_balance: 100.0000
-total_return_pct: 0.00%
-n_trades: 0
-win_rate: 0
-avg_return_per_trade: 0
-total_fees_paid: 0
-avg_hold_time: 0
+{
+    "strategy_params": {
+        "buy_threshold": 1.5336175535575067,
+        "take_profit": 1.2342944582037374,
+        "max_hold_time": 5,
+        "trailing_stop": 0.6722662734881516,
+        "target_shift": 8,
+        "target_window": 4,
+        "optimization_score": -Infinity
+    },
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    }
+}

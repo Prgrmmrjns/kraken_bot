@@ -1,0 +1,205 @@
+{
+    "BTC_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "ETH_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "XRP_EUR": {
+        "total_return": -1.0418777479383152,
+        "n_trades": 1,
+        "win_rate": 0.0,
+        "best_return": -0.6393041328992173,
+        "worst_return": -0.6393041328992173
+    },
+    "SOL_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "MATIC_EUR": {
+        "total_return": -7.658168788432321,
+        "n_trades": 26,
+        "win_rate": 53.84615384615385,
+        "best_return": 1.617795753286138,
+        "worst_return": -1.0062893081760944
+    },
+    "TURBO_EUR": {
+        "total_return": -35.9366920350878,
+        "n_trades": 104,
+        "win_rate": 51.92307692307693,
+        "best_return": 3.2302188552188547,
+        "worst_return": -4.669470505769431
+    },
+    "KAS_EUR": {
+        "total_return": -26.879766698418067,
+        "n_trades": 76,
+        "win_rate": 55.26315789473685,
+        "best_return": 1.9300770337763518,
+        "worst_return": -1.5667295545894584
+    },
+    "DOT_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "AVAX_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "SHIB_EUR": {
+        "total_return": -38.767650927887246,
+        "n_trades": 109,
+        "win_rate": 55.04587155963303,
+        "best_return": 1.7081503172279249,
+        "worst_return": -2.104256336681026
+    },
+    "PEPE_EUR": {
+        "total_return": -42.230441182156056,
+        "n_trades": 102,
+        "win_rate": 49.01960784313725,
+        "best_return": 2.4692644300895976,
+        "worst_return": -1.7557626287395731
+    },
+    "GALA_EUR": {
+        "total_return": -36.9572395314969,
+        "n_trades": 111,
+        "win_rate": 51.35135135135135,
+        "best_return": 3.23383084577115,
+        "worst_return": -2.9069767441860495
+    },
+    "KEY_EUR": {
+        "total_return": -47.002611132340085,
+        "n_trades": 138,
+        "win_rate": 46.3768115942029,
+        "best_return": 7.76119402985074,
+        "worst_return": -3.567984570877524
+    },
+    "SUI_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "LINK_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "ICP_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "RENDER_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "TAO_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "ARB_EUR": {
+        "total_return": -0.6365093892940089,
+        "n_trades": 12,
+        "win_rate": 75.0,
+        "best_return": 1.3237221494102225,
+        "worst_return": -1.034870641169852
+    },
+    "ENA_EUR": {
+        "total_return": -1.9158077862542682,
+        "n_trades": 21,
+        "win_rate": 71.42857142857143,
+        "best_return": 3.1072853243753893,
+        "worst_return": -1.6030902945437149
+    },
+    "DAI_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "ALGO_EUR": {
+        "total_return": -4.489890313761865,
+        "n_trades": 60,
+        "win_rate": 73.33333333333333,
+        "best_return": 2.874605065520277,
+        "worst_return": -1.7305961264844987
+    },
+    "TIA_EUR": {
+        "total_return": 0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "best_return": 0,
+        "worst_return": 0
+    },
+    "POLS_EUR": {
+        "total_return": 24.648482825247918,
+        "n_trades": 14,
+        "win_rate": 78.57142857142857,
+        "best_return": 10.538229376257544,
+        "worst_return": -5.959595959595962
+    },
+    "BNC_EUR": {
+        "total_return": -88.46970918786877,
+        "n_trades": 32,
+        "win_rate": 62.5,
+        "best_return": 7.407407407407414,
+        "worst_return": -6.000000000000005
+    },
+    "SAFE_EUR": {
+        "total_return": 3.101807375945256,
+        "n_trades": 3,
+        "win_rate": 100.0,
+        "best_return": 1.853143369532724,
+        "worst_return": 1.4899713467048767
+    },
+    "L3_EUR": {
+        "total_return": 6.117486265061898,
+        "n_trades": 60,
+        "win_rate": 63.33333333333333,
+        "best_return": 12.28273464658169,
+        "worst_return": -10.937500000000002
+    },
+    "MNGO_EUR": {
+        "total_return": -89.2953613171772,
+        "n_trades": 46,
+        "win_rate": 60.86956521739131,
+        "best_return": 8.292682926829269,
+        "worst_return": -5.963302752293574
+    },
+    "SC_EUR": {
+        "total_return": -23.605593628908334,
+        "n_trades": 87,
+        "win_rate": 57.47126436781609,
+        "best_return": 4.222972972972977,
+        "worst_return": -1.892744479495273
+    }
+}

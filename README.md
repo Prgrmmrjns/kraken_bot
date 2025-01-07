@@ -99,6 +99,7 @@ kraken_bot/
 - Add deep learning models (LSTM, Transformers)
 - Improve feature engineering with more technical indicators
 - Add feature importance analysis and selection
+- Continuous download of new data and model retraining
 
 ### 3. Trading Strategies
 - Implement short selling for bear markets
@@ -123,14 +124,12 @@ kraken_bot/
 - Add volatility-based position sizing
 
 ### 6. Infrastructure
-- Add automated model retraining
-- Implement high-availability setup
 - Add comprehensive logging and monitoring
 - Improve error handling and recovery
 - Add automated backups
 
 ### 7. Fix and improve visualizations
-- Fix buy and sell signals
+- Fix buy and sell signals visualization
 - Add more visualizations of backtesting results and live trading
 - Add visualizations of model performance and predictions
 

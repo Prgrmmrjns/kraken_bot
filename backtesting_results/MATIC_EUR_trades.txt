@@ -1,156 +1,489 @@
-Trade Details for MATIC/EUR
-==================================================
-
-Strategy Parameters:
-prediction_horizon: 4
-buy_threshold: 1.991452
-take_profit_threshold: 2.559713
-max_hold_hours: 7
-trailing_stop_distance: 1.394238
-min_rsi: 30
-max_rsi: 66
-min_volume_ratio: 1.110912
-max_volatility: 2.834938
-profit_lock_pct: 0.457945
-optimization_score: -0.000000
-
-Individual Trades:
---------------------------------------------------
-
-Trade #1:
-Entry Time: 2025-01-01 10:45:00
-Entry Price: €0.4348
-Position Size: 233.3960
-Entry Cost: €101.4846
-Entry Fees: €0.2639
-Exit Time: 2025-01-01 12:30:00
-Exit Price: €0.4394
-Exit Value: €102.5496
-Exit Fees: €0.2666
-Total Fees: €0.5305
-Net P&L: €0.5345
-Return: 0.53%
-Duration: 7.0 hours
-Balance After: €107.6381
-
-Trade #2:
-Entry Time: 2025-01-01 15:30:00
-Entry Price: €0.4429
-Position Size: 230.2690
-Entry Cost: €101.9910
-Entry Fees: €0.2652
-Exit Time: 2025-01-01 17:15:00
-Exit Price: €0.4462
-Exit Value: €102.7407
-Exit Fees: €0.2671
-Total Fees: €0.5323
-Net P&L: €0.2173
-Return: 0.21%
-Duration: 7.0 hours
-Balance After: €107.8555
-
-Trade #3:
-Entry Time: 2025-01-01 17:45:00
-Entry Price: €0.4505
-Position Size: 226.8396
-Entry Cost: €102.1970
-Entry Fees: €0.2657
-Exit Time: 2025-01-01 19:00:00
-Exit Price: €0.4586
-Exit Value: €104.0220
-Exit Fees: €0.2705
-Total Fees: €0.5362
-Net P&L: €1.2889
-Return: 1.26%
-Duration: 5.0 hours
-Balance After: €109.1443
-
-Trade #4:
-Entry Time: 2025-01-01 22:30:00
-Entry Price: €0.4599
-Position Size: 224.8565
-Entry Cost: €103.4182
-Entry Fees: €0.2689
-Exit Time: 2025-01-02 00:15:00
-Exit Price: €0.4634
-Exit Value: €104.1913
-Exit Fees: €0.2709
-Total Fees: €0.5398
-Net P&L: €0.2334
-Return: 0.23%
-Duration: 6.0 hours
-Balance After: €109.3777
-
-Trade #5:
-Entry Time: 2025-01-02 03:30:00
-Entry Price: €0.4640
-Position Size: 223.3452
-Entry Cost: €103.6393
-Entry Fees: €0.2695
-Exit Time: 2025-01-02 03:45:00
-Exit Price: €0.4636
-Exit Value: €103.5357
-Exit Fees: €0.2692
-Total Fees: €0.5387
-Net P&L: €-0.6422
-Return: -0.62%
-Duration: 1.0 hours
-Balance After: €108.7354
-
-Trade #6:
-Entry Time: 2025-01-02 07:15:00
-Entry Price: €0.4664
-Position Size: 220.8908
-Entry Cost: €103.0308
-Entry Fees: €0.2679
-Exit Time: 2025-01-02 09:00:00
-Exit Price: €0.4717
-Exit Value: €104.1862
-Exit Fees: €0.2709
-Total Fees: €0.5388
-Net P&L: €0.6167
-Return: 0.60%
-Duration: 7.0 hours
-Balance After: €109.3521
-
-Trade #7:
-Entry Time: 2025-01-03 08:30:00
-Entry Price: €0.4724
-Position Size: 219.3209
-Entry Cost: €103.6151
-Entry Fees: €0.2694
-Exit Time: 2025-01-03 09:00:00
-Exit Price: €0.4777
-Exit Value: €104.7611
-Exit Fees: €0.2724
-Total Fees: €0.5418
-Net P&L: €0.6042
-Return: 0.58%
-Duration: 2.0 hours
-Balance After: €109.9563
-
-Trade #8:
-Entry Time: 2025-01-04 10:45:00
-Entry Price: €0.5034
-Position Size: 206.9877
-Entry Cost: €104.1876
-Entry Fees: €0.2709
-Exit Time: 2025-01-04 12:30:00
-Exit Price: €0.5067
-Exit Value: €104.8903
-Exit Fees: €0.2727
-Total Fees: €0.5436
-Net P&L: €0.1591
-Return: 0.15%
-Duration: 7.0 hours
-Balance After: €110.1154
-
-Summary Metrics:
---------------------------------------------------
-final_balance: 110.1154
-total_return_pct: 2.81%
-n_trades: 8
-win_rate: 0.8750
-avg_return_per_trade: 0.3676
-total_fees_paid: €4.3015
-avg_hold_time: 5.2500
+{
+    "strategy_params": {
+        "buy_threshold": 1.432303090144416,
+        "take_profit": 1.4304679878323463,
+        "max_hold_time": 4,
+        "trailing_stop": 0.8988777639523471,
+        "target_shift": 3,
+        "target_window": 8,
+        "optimization_score": 36.61655001774574
+    },
+    "trades": [
+        {
+            "type": "buy",
+            "timestamp": "2024-12-31 09:30:00",
+            "price": 0.4467,
+            "size": 199.37835242188385,
+            "fees": 0.23156200606982433,
+            "balance": 9.664250219136349
+        },
+        {
+            "type": "sell",
+            "timestamp": "2024-12-31 10:30:00",
+            "price": 0.4462,
+            "size": 199.37835242188385,
+            "fees": 0.23130281421167587,
+            "balance": 98.39556825556924,
+            "return": -0.11193194537721077,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2024-12-31 11:00:00",
+            "price": 0.445,
+            "size": 199.0022728764322,
+            "fees": 0.23024562971803203,
+            "balance": 9.609311195838899
+        },
+        {
+            "type": "sell",
+            "timestamp": "2024-12-31 12:00:00",
+            "price": 0.4463,
+            "size": 199.0022728764322,
+            "fees": 0.23091825740035435,
+            "balance": 98.19310732319022,
+            "return": 0.29213483146066693,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2024-12-31 12:15:00",
+            "price": 0.4487,
+            "size": 196.95519632465167,
+            "fees": 0.2297718711362651,
+            "balance": 9.58953886118276
+        },
+        {
+            "type": "sell",
+            "timestamp": "2024-12-31 13:15:00",
+            "price": 0.4553,
+            "size": 196.95519632465167,
+            "fees": 0.23315162230519612,
+            "balance": 99.03008812549146,
+            "return": 1.4709159794963216,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2024-12-31 22:45:00",
+            "price": 0.4356,
+            "size": 204.60762009399062,
+            "fees": 0.23173040621365001,
+            "balance": 9.671278406335503
+        },
+        {
+            "type": "sell",
+            "timestamp": "2024-12-31 23:45:00",
+            "price": 0.4356,
+            "size": 204.60762009399062,
+            "fees": 0.23173040621365001,
+            "balance": 98.56662731306417,
+            "return": 0.0,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-01 08:45:00",
+            "price": 0.4329,
+            "size": 204.92022310408353,
+            "fees": 0.23064590791257017,
+            "balance": 9.62601682339384
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-01 09:45:00",
+            "price": 0.432,
+            "size": 204.92022310408353,
+            "fees": 0.2301663945905066,
+            "balance": 97.92138680976741,
+            "return": -0.20790020790021063,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-01 10:00:00",
+            "price": 0.4328,
+            "size": 203.62580436411892,
+            "fees": 0.22913604513485575,
+            "balance": 9.563002635841883
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-01 11:00:00",
+            "price": 0.4334,
+            "size": 203.62580436411892,
+            "fees": 0.22945370138966376,
+            "balance": 97.58497254586136,
+            "return": 0.13863216266173506,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-01 11:45:00",
+            "price": 0.437,
+            "size": 200.9759159983415,
+            "fees": 0.2283488357573156,
+            "balance": 9.530148418828816
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-01 12:45:00",
+            "price": 0.4383,
+            "size": 200.9759159983415,
+            "fees": 0.22902813435339,
+            "balance": 97.38886426654851,
+            "return": 0.2974828375286095,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-01 13:45:00",
+            "price": 0.4411,
+            "size": 198.70772577622685,
+            "fees": 0.2278899423837235,
+            "balance": 9.510996484271118
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-01 14:45:00",
+            "price": 0.4416,
+            "size": 198.70772577622685,
+            "fees": 0.2281482624272326,
+            "balance": 97.03217992462567,
+            "return": 0.11335298118340523,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-01 16:00:00",
+            "price": 0.4469,
+            "size": 195.4105212176395,
+            "fees": 0.22705530102362403,
+            "balance": 9.476162691438944
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-01 17:00:00",
+            "price": 0.4446,
+            "size": 195.4105212176395,
+            "fees": 0.2258867461067426,
+            "balance": 96.12979367869474,
+            "return": -0.5146565227120216,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-01 17:15:00",
+            "price": 0.4464,
+            "size": 193.81006790059422,
+            "fees": 0.22494371720814568,
+            "balance": 9.388035650661323
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-01 18:15:00",
+            "price": 0.4497,
+            "size": 193.81006790059422,
+            "fees": 0.22660660759073276,
+            "balance": 96.3178165779678,
+            "return": 0.7392473118279502,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-02 07:15:00",
+            "price": 0.4662,
+            "size": 185.9417308454977,
+            "fees": 0.22538369079244466,
+            "balance": 9.406397967004338
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-02 08:15:00",
+            "price": 0.4669,
+            "size": 185.9417308454977,
+            "fees": 0.22572210474258345,
+            "balance": 95.99686999402462,
+            "return": 0.15015015015014552,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-02 11:00:00",
+            "price": 0.4773,
+            "size": 181.01232557012813,
+            "fees": 0.2246326757860176,
+            "balance": 9.375054323616453
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-02 12:00:00",
+            "price": 0.4768,
+            "size": 181.01232557012813,
+            "fees": 0.22439735976277644,
+            "balance": 95.45733379569077,
+            "return": -0.10475591870940718,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-02 17:15:00",
+            "price": 0.477,
+            "size": 180.10817697300146,
+            "fees": 0.2233701610819164,
+            "balance": 9.322363218487155
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-02 17:30:00",
+            "price": 0.4722,
+            "size": 180.10817697300146,
+            "fees": 0.22112241103329336,
+            "balance": 94.14832197410516,
+            "return": -1.0062893081760944,
+            "hours_held": 0.25
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-03 07:00:00",
+            "price": 0.4707,
+            "size": 180.01591199637696,
+            "fees": 0.22030707341940606,
+            "balance": 9.194525123991113
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-03 08:00:00",
+            "price": 0.4702,
+            "size": 180.01591199637696,
+            "fees": 0.22007305273381075,
+            "balance": 93.61793389195375,
+            "return": -0.10622477161674111,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-03 09:15:00",
+            "price": 0.4773,
+            "size": 176.5265881055068,
+            "fees": 0.2190659653071718,
+            "balance": 9.142727423888203
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-03 10:15:00",
+            "price": 0.4772,
+            "size": 176.5265881055068,
+            "fees": 0.21902006839426436,
+            "balance": 93.16219519944178,
+            "return": -0.02095118374187911,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-03 10:30:00",
+            "price": 0.4792,
+            "size": 174.97073388876797,
+            "fees": 0.21799953676669379,
+            "balance": 9.098219983177472
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-03 11:30:00",
+            "price": 0.4869,
+            "size": 174.97073388876797,
+            "fees": 0.22150245085914688,
+            "balance": 94.06996786275944,
+            "return": 1.606844741235389,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-03 12:15:00",
+            "price": 0.4913,
+            "size": 172.32438647767862,
+            "fees": 0.22012372479885708,
+            "balance": 9.186873061477087
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-03 13:15:00",
+            "price": 0.4889,
+            "size": 172.32438647767862,
+            "fees": 0.2190484206272364,
+            "balance": 93.21721718978694,
+            "return": -0.48849989822919054,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-03 13:30:00",
+            "price": 0.4899,
+            "size": 171.25024590897783,
+            "fees": 0.2181282882241014,
+            "balance": 9.103593430754586
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-03 14:30:00",
+            "price": 0.4947,
+            "size": 171.25024590897783,
+            "fees": 0.22026549129304546,
+            "balance": 93.60082459063287,
+            "return": 0.9797917942437173,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-04 01:15:00",
+            "price": 0.4996,
+            "size": 168.6163773650312,
+            "fees": 0.21902592954208092,
+            "balance": 9.141056529521194
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-04 02:15:00",
+            "price": 0.5,
+            "size": 168.6163773650312,
+            "fees": 0.21920129057454057,
+            "balance": 93.23004392146225,
+            "return": 0.08006405124099508,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-04 04:30:00",
+            "price": 0.4986,
+            "size": 168.2852778365745,
+            "fees": 0.2181583027762217,
+            "balance": 9.10484608937
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-04 05:30:00",
+            "price": 0.5,
+            "size": 168.2852778365745,
+            "fees": 0.21877086118754682,
+            "balance": 93.0287141464697,
+            "return": 0.28078620136382115,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-04 11:00:00",
+            "price": 0.5015,
+            "size": 166.9508329647512,
+            "fees": 0.21768719110273907,
+            "balance": 9.085184223544232
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-04 12:00:00",
+            "price": 0.5032,
+            "size": 166.9508329647512,
+            "fees": 0.2184251137844433,
+            "balance": 92.87641825762259,
+            "return": 0.3389830508474646,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-04 16:00:00",
+            "price": 0.5026,
+            "size": 166.31272668495888,
+            "fees": 0.21733081872283688,
+            "balance": 9.070311007039408
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-04 17:00:00",
+            "price": 0.504,
+            "size": 166.31272668495888,
+            "fees": 0.21793619704797013,
+            "balance": 92.67398905921071,
+            "return": 0.27855153203341754,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-06 00:00:00",
+            "price": 0.4992,
+            "size": 167.08050912117318,
+            "fees": 0.21685713439855306,
+            "balance": 9.050541771522518
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-06 01:00:00",
+            "price": 0.4954,
+            "size": 167.08050912117318,
+            "fees": 0.2152063789684359,
+            "balance": 91.60701961118328,
+            "return": -0.7612179487179427,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-06 13:00:00",
+            "price": 0.4996,
+            "size": 165.02465502414924,
+            "fees": 0.21436042589016888,
+            "balance": 8.946341535228157
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-06 14:00:00",
+            "price": 0.4987,
+            "size": 165.02465502414924,
+            "fees": 0.2139742681974124,
+            "balance": 91.03016272757397,
+            "return": -0.18014411529223617,
+            "hours_held": 1.0
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-06 14:15:00",
+            "price": 0.4945,
+            "size": 165.67673701681812,
+            "fees": 0.21301058078252305,
+            "balance": 8.890005691974878
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-06 14:45:00",
+            "price": 0.5025,
+            "size": 165.67673701681812,
+            "fees": 0.21645665691247284,
+            "balance": 91.92610938601351,
+            "return": 1.617795753286138,
+            "hours_held": 0.5
+        },
+        {
+            "type": "buy",
+            "timestamp": "2025-01-07 04:45:00",
+            "price": 0.4973,
+            "size": 166.36536989224243,
+            "fees": 0.2151070959632716,
+            "balance": 8.977503842638072
+        },
+        {
+            "type": "sell",
+            "timestamp": "2025-01-07 05:45:00",
+            "price": 0.4966,
+            "size": 166.36536989224243,
+            "fees": 0.21480431099006772,
+            "balance": 91.3797422201356,
+            "return": -0.14076010456465593,
+            "hours_held": 1.0
+        }
+    ],
+    "metrics": {
+        "final_balance": 91.3797422201356,
+        "total_return": -7.658168788432321,
+        "n_trades": 26,
+        "win_rate": 0.5384615384615384,
+        "avg_return": 0.18236159436623794,
+        "total_fees": 11.594197641611201
+    }
+}
