@@ -1,0 +1,23 @@
+app = "kraken-trading-bot"
+primary_region = "ams"  # Amsterdam region, change if needed
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PYTHONUNBUFFERED = "1"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+
+[mounts]
+  source="kraken_bot_data"
+  destination="/app/data" 
