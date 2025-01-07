@@ -1,0 +1,44 @@
+Trade Details for XRP/EUR
+==================================================
+
+Strategy Parameters:
+prediction_horizon: flex_max
+buy_threshold: 0.630499
+take_profit_threshold: 4.175601
+max_hold_hours: 6
+trailing_stop_distance: 1.166058
+min_rsi: 20
+max_rsi: 80
+min_volume_ratio: 0.712382
+max_volatility: 4.384644
+profit_lock_pct: 0.694353
+optimization_score: -30.000000
+
+Individual Trades:
+--------------------------------------------------
+
+Trade #1:
+Entry Time: 2025-01-01 14:15:00
+Entry Price: €2.0964
+Position Size: 451.9810
+Entry Cost: €947.5364
+Entry Fees: €2.4636
+Exit Time: 2025-01-01 15:15:00
+Exit Price: €2.1016
+Exit Value: €949.9007
+Exit Fees: €2.4697
+Total Fees: €4.9333
+Net P&L: €-2.5690
+Return: -0.27%
+Duration: 4.0 hours
+Balance After: €997.4310
+
+Summary Metrics:
+--------------------------------------------------
+final_balance: 997.4310
+total_return_pct: -0.26%
+n_trades: 1
+win_rate: 0.0000
+avg_return_per_trade: -0.2711
+total_fees_paid: €4.9333
+avg_hold_time: 4.0000

@@ -1,0 +1,28 @@
+Trade Details for ATOM/EUR
+==================================================
+
+Strategy Parameters:
+prediction_horizon: flex_max
+buy_threshold: 2.758242
+take_profit_threshold: 1.463042
+max_hold_hours: 14
+trailing_stop_distance: 1.898422
+min_rsi: 31
+max_rsi: 72
+min_volume_ratio: 0.713648
+max_volatility: 4.855606
+profit_lock_pct: 0.783342
+optimization_score: -100.000000
+
+Individual Trades:
+--------------------------------------------------
+
+Summary Metrics:
+--------------------------------------------------
+final_balance: 1088.4670
+total_return_pct: 0.00%
+n_trades: 0
+win_rate: 0
+avg_return_per_trade: 0
+total_fees_paid: 0
+avg_hold_time: 0

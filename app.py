@@ -1,188 +1,239 @@
 import os
 import time
 from datetime import datetime
-import joblib
 from dotenv import load_dotenv
-from model_functions import create_features, train_model, simulate_trading
-from kraken_functions import place_market_order, download_full_ohlc_data
+import joblib
+import warnings
+import json
 
-load_dotenv()
+# Suppress all warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 
-API_KEY = os.getenv("KRAKEN_API_KEY")
-API_SECRET = os.getenv("KRAKEN_API_SECRET")
-# Trading pairs
-AVAILABLE_PAIRS = {
-    'XRP/EUR': 'XXRPZEUR',
-    'BTC/EUR': 'XXBTZEUR',
-    'ETH/EUR': 'XETHZEUR',
-    'DOT/EUR': 'DOTZEUR',
-    'ADA/EUR': 'ADAEUR'
-}
+from kraken_functions import (
+    execute_order,
+    check_and_manage_positions,
+    download_recent_ohlc,
+)
+from trading_strat_params import TRADING_PAIRS, TRADING_CONFIG, MODEL_CONFIG
+from model_functions import create_features_for_pair
 
-def check_api_credentials():
-    """Check if API credentials are properly set"""
-    api_key = os.getenv("KRAKEN_API_KEY")
-    api_secret = os.getenv("KRAKEN_API_SECRET")
-    
-    if not api_key or not api_secret:
-        print("\n❌ ERROR: API credentials not found!")
-        print("Please make sure you have set the following environment variables:")
-        print("- KRAKEN_API_KEY")
-        print("- KRAKEN_API_SECRET")
-        print("\nYou can set them by:")
-        print("1. Adding them to your .env file:")
-        print("   KRAKEN_API_KEY=your_api_key")
-        print("   KRAKEN_API_SECRET=your_api_secret")
-        print("\n2. Or setting them in your terminal:")
-        print("   export KRAKEN_API_KEY=your_api_key")
-        print("   export KRAKEN_API_SECRET=your_api_secret")
-        return False
-    return True
+def load_trading_params(pair):
+    """Load trading parameters from file."""
+    try:
+        filename = f"backtesting_results/{pair.replace('/', '_')}_trades.txt"
+        params = {}
+        
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if line.strip() == "Strategy Parameters:":
+                    param_lines = lines[i+1:i+11]
+                    for param_line in param_lines:
+                        if ':' in param_line:
+                            key, value = param_line.strip().split(': ')
+                            key_mapping = {
+                                'buy_threshold': 'buy_threshold',
+                                'take_profit_threshold': 'take_profit',
+                                'max_hold_hours': 'max_hold_time',
+                                'trailing_stop_distance': 'trailing_stop',
+                                'min_rsi': 'min_rsi',
+                                'max_rsi': 'max_rsi',
+                                'min_volume_ratio': 'min_volume_ratio',
+                                'max_volatility': 'max_volatility',
+                                'profit_lock_pct': 'profit_lock',
+                                'optimization_score': 'score'
+                            }
+                            for old_key, new_key in key_mapping.items():
+                                if old_key in key:
+                                    params[new_key] = float(value)
+                                    break
+                    break
+        
+        if params:
+            return params
+        
+        print(f"❌ No parameters found in {filename}. Make sure to run backtesting.py first. Using default parameters for now.")
+        raise ValueError("Invalid file format")
+        
+    except Exception as e:
+        print(f"⚠️ Using default parameters for {pair}")
+        return {
+            'buy_threshold': 1.5,
+            'take_profit': 2.0,
+            'max_hold_time': 24,
+            'trailing_stop': 0.5,
+            'min_rsi': 30,
+            'max_rsi': 70,
+            'min_volume_ratio': 1.0,
+            'max_volatility': 3.0,
+            'profit_lock': 0.5,
+            'score': 0.0
+        }
 
-def initialize_model(pair):
-    """Initialize or update the model for the selected pair"""
-    print(f"\nInitializing model for {pair}...")
-    os.environ['TRADING_PAIR'] = pair
-    os.system('python init.py')
-    return joblib.load('model.joblib')
-
-def evaluate_position(model, current_data):
-    """Evaluate whether to open/close a position"""
-    df = create_features(current_data)
-    df = df.dropna(subset=['target'])
-    X = df.drop(columns=['timestamp', 'target'])
-    
-    predicted_price = model.predict(X)[-1]
-    current_price = float(current_data['close'].iloc[-1])
-    expected_return = (predicted_price - current_price) / current_price * 100
-    
-    return current_price, predicted_price, expected_return
-
-def execute_order(order_type, pair, volume, price):
-    """Execute a buy/sell order with user confirmation"""
-    print(f"\n{'='*50}")
-    print(f"EXECUTING {order_type} ORDER")
-    print(f"Pair: {pair}")
-    print(f"Volume: {volume:.6f}")
-    print(f"Current Price: €{price:.5f}")
-    print(f"Total Value: €{volume * price:.2f}")
-    print(f"{'='*50}")
-    
-    if not check_api_credentials():
-        return False
-    
-    confirm = input("\nConfirm order (yes/no): ").lower()
-    if confirm == 'yes':
-        print("\nPlacing order...")
+def get_model_features(model_file):
+    """Get feature names from the trained model."""
+    model = joblib.load(model_file)
+    try:
+        return model.feature_names_
+    except AttributeError:
+        # If feature names not stored in model, load from model info
         try:
-            response = place_market_order(pair, volume, order_type.lower())
-            
-            if response and 'error' not in response:
-                print(f"\n✅ {order_type} order executed successfully!")
-                print("Order details:", response)
-                return True
-            else:
-                error_msg = response.get('error', ['Unknown error'])[0] if response else 'Failed to connect to exchange'
-                print(f"\n❌ Failed to execute {order_type} order: {error_msg}")
-                return False
-        except Exception as e:
-            print(f"\n❌ Error executing order: {str(e)}")
-            return False
-    else:
-        print("\nOrder cancelled by user")
-        return False
+            with open('model_info.txt', 'r') as f:
+                model_info = json.loads(f.read())
+                return model_info['data_info']['features']
+        except:
+            return None
+
+def prepare_features(features_df, model_features):
+    """Prepare features to match model's expected features."""
+    if model_features is None:
+        return features_df
+        
+    # Get common features
+    common_features = list(set(features_df.columns) & set(model_features))
+    
+    # Check if we have all required features
+    missing_features = set(model_features) - set(features_df.columns)
+    if missing_features:
+        print(f"Missing features: {missing_features}")
+        return None
+        
+    # Return only the features the model expects, in the correct order
+    return features_df[model_features]
+
+def is_prediction_realistic(prediction, current_price):
+    """Check if prediction is within realistic bounds."""
+    # Maximum realistic daily return (e.g., 10%)
+    MAX_REALISTIC_RETURN = 10.0
+    
+    return abs(prediction) <= MAX_REALISTIC_RETURN
 
 def main():
-    # Check API credentials at startup
-    if not check_api_credentials():
-        print("\nCannot proceed without valid API credentials.")
-        return
+    """Main trading bot function."""
+    print("\n🚀 Starting Kraken Trading Bot...")
     
-    # Select trading pair
-    print("\nAvailable trading pairs:")
-    for i, pair in enumerate(AVAILABLE_PAIRS.keys(), 1):
-        print(f"{i}. {pair}")
+    # Load environment variables
+    load_dotenv()
+    if not all([os.getenv("KRAKEN_API_KEY"), os.getenv("KRAKEN_API_SECRET")]):
+        print("❌ Error: API credentials not found. Check your .env file.")
+        return
+
+    # Load trading parameters for each pair
+    pair_params = {}
+    for pair, display_name in TRADING_PAIRS:
+        params = load_trading_params(display_name)
+        pair_params[pair] = params
     
     while True:
         try:
-            choice = int(input("\nSelect trading pair (1-5): ")) - 1
-            display_pair = list(AVAILABLE_PAIRS.keys())[choice]
-            selected_pair = AVAILABLE_PAIRS[display_pair]
-            break
-        except (ValueError, IndexError):
-            print("Invalid choice. Please select a number between 1 and 5.")
-    
-    # Get trading parameters
-    min_confidence = 2 # Minimum predicted increase in price to buy
-    position_size = 10 # Amount of EUR for each trade
-    take_profit = 5 # When to trigger take profit
-    
-    print(f"\nInitializing bot for {display_pair}...")
-    model = initialize_model(selected_pair)
-    
-    position_open = False
-    entry_price = None
-    
-    print("\nBot is running. Press Ctrl+C to stop.")
-    
-    try:
-        while True:
-            # Get current market data
-            print(f"\nFetching data for {display_pair}...")
-            current_data = download_full_ohlc_data(selected_pair, interval=60)
-            
-            # Evaluate position
-            current_price, predicted_price, expected_return = evaluate_position(model, current_data)
-            
-            # Print market status
+            # Check positions and print status
+            positions = check_and_manage_positions()
             print(f"\n{'='*50}")
-            print(f"MARKET STATUS - {display_pair}")
+            print(f"TRADING STATUS - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             print(f"{'='*50}")
-            print(f"Current Price: €{current_price:.5f}")
-            print(f"Predicted Price: €{predicted_price:.5f}")
-            print(f"Expected Return: {expected_return:+.2f}%")
+            print(f"\nActive Positions: {len(positions)}")
             
-            if position_open:
-                current_return = (current_price - entry_price) / entry_price * 100
-                print(f"Current Position Return: {current_return:+.2f}%")
-                print(f"Take Profit Target: {take_profit:.2f}%")
-            
-            # Trading logic
-            if not position_open:
-                if expected_return > min_confidence:
-                    print("\n💰 BUY SIGNAL DETECTED")
-                    print(f"Expected return ({expected_return:.2f}%) exceeds minimum confidence ({min_confidence:.2f}%)")
+            # Evaluate trading opportunities
+            opportunities = []
+            for pair, display_name in TRADING_PAIRS:
+                try:
+                    # Get current market data
+                    df = download_recent_ohlc(pair=pair)
+                    if df is None or len(df) < 50:
+                        continue
+                        
+                    # Load model and get expected features
+                    model_file = f'models/model_{pair}.joblib'
+                    if not os.path.exists(model_file):
+                        print(f"⚠️ Model not found for {display_name}")
+                        continue
                     
-                    if execute_order("BUY", selected_pair, position_size/current_price, current_price):
-                        position_open = True
-                        entry_price = current_price
-                else:
-                    print("\nNo buy signal at this time")
-            else:
-                current_return = (current_price - entry_price) / entry_price * 100
-                take_profit_triggered = current_return >= take_profit
-                prediction_sell_signal = expected_return < 0
+                    model = joblib.load(model_file)
+                    model_features = get_model_features(model_file)
+                    
+                    # Create and prepare features
+                    features_df = create_features_for_pair(df, display_name)
+                    if features_df is None:
+                        continue
+                    
+                    # Prepare features to match model's expectations
+                    features = prepare_features(features_df, model_features)
+                    if features is None:
+                        print(f"❌ Feature mismatch for {display_name}")
+                        continue
+                        
+                    # Make prediction
+                    prediction = model.predict(features)[-1]
+                    current_price = float(df['close'].iloc[-1])
+                    
+                    # Check trading conditions
+                    params = pair_params[pair]
+                    if prediction > params['buy_threshold']:
+                        opportunities.append({
+                            'pair': pair,  # Kraken's internal symbol (e.g., 'XXBTZEUR')
+                            'display_name': display_name,  # Human-readable name (e.g., 'BTC/EUR')
+                            'current_price': current_price,
+                            'predicted_return': prediction,
+                            'params': params
+                        })
+                        
+                        print(f"\n✨ Opportunity found for {display_name}:")
+                        print(f"💰 Current Price: €{current_price:.5f}")
+                        print(f"📈 Predicted Return: {prediction:+.2f}%")
                 
-                if take_profit_triggered or prediction_sell_signal:
-                    print("\n📈 SELL SIGNAL DETECTED")
-                    reason = "Take profit target reached" if take_profit_triggered else "Negative price movement predicted"
-                    print(f"Reason: {reason}")
-                    print(f"Current return: {current_return:.2f}%")
-                    
-                    if execute_order("SELL", selected_pair, position_size/entry_price, current_price):
-                        position_open = False
-                        entry_price = None
+                except Exception as e:
+                    print(f"❌ Error processing {display_name}: {str(e)}")
+                    continue
+            
+            # Handle trading opportunities
+            if opportunities:
+                # Find the opportunity with highest predicted return
+                best_opp = max(opportunities, key=lambda x: x['predicted_return'])
+                
+                print("\n🎯 Best Trading Opportunity Found!")
+                print(f"\n{'='*30}")
+                print(f"Trading Pair: {best_opp['display_name']}")
+                print(f"Current Price: €{best_opp['current_price']:.5f}")
+                print(f"Predicted Return: {best_opp['predicted_return']:+.2f}%")
+                print(f"Take Profit: {best_opp['params']['take_profit']}%")
+                print(f"Stop Loss: {best_opp['params']['trailing_stop']}%")
+                
+                # Calculate position size based on risk management
+                available_balance = float(os.getenv('MAX_POSITION_SIZE', 1000))
+                position_size = min(
+                    available_balance,
+                    available_balance * (float(os.getenv('RISK_PERCENTAGE', 1)) / 100)
+                )
+                
+                print(f"Suggested Position Size: €{position_size:.2f}")
+                
+                # Ask for user confirmation ONCE
+                confirm = input(f"\nExecute trade for {best_opp['display_name']} at €{best_opp['current_price']:.2f}? (y/n): ").lower()
+                if confirm == 'y':
+                    try:
+                        # Execute the trade using Kraken's internal symbol
+                        if execute_order(best_opp['pair'], position_size, "BUY", skip_confirm=True):
+                            print(f"✅ Buy order executed for {best_opp['display_name']}")
+                        else:
+                            print(f"❌ Failed to execute buy order for {best_opp['display_name']}")
+                    except Exception as e:
+                        print(f"❌ Error executing trade: {str(e)}")
                 else:
-                    print("\nHolding position...")
+                    print("Trade skipped by user.")
+            else:
+                print("\n😴 No trading opportunities found.")
             
-            # Wait for next evaluation
-            print("\nWaiting 60 seconds for next evaluation...")
-            time.sleep(60)
+            print("\n💤 Sleeping for 5 minutes...")
+            time.sleep(300)  # Sleep for 5 minutes
             
-    except KeyboardInterrupt:
-        print("\n\nBot stopped by user")
-        if position_open:
-            print(f"\nWARNING: Position still open at €{current_price:.5f} ({current_return:+.2f}%)")
+        except KeyboardInterrupt:
+            print("\n👋 Trading bot stopped by user.")
+            break
+        except Exception as e:
+            print(f"\n❌ Error: {str(e)}")
+            print("🔄 Retrying in 5 minutes...")
+            time.sleep(300)
 
 if __name__ == "__main__":
-    main() 
+    main()

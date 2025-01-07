@@ -1,113 +1,149 @@
-# XRP/EUR Trading Bot
+# Kraken Trading Bot 🚀
 
-A Streamlit-based trading bot that monitors XRP/EUR prices and suggests trades based on machine learning predictions.
+A command-line cryptocurrency trading bot using machine learning to predict price movements and execute trades on the Kraken exchange.
 
-## Features
+## Features 🌟
 
-- Real-time price monitoring
-- Interactive candlestick chart
-- ML-based price prediction
-- Automated trading with manual confirmation
-- Configurable trading parameters
-- Secure API integration with Kraken
+- ML-based price prediction using LightGBM
+- Real-time market monitoring
+- Automated trading with risk management
+- Backtesting with visualizations
+- Simple command-line interface
 
-## Setup
+## Prerequisites ⚙️
 
-1. Install dependencies:
+- Python 3.10+
+- Kraken account with API access
+
+## Installation 🛠️
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/kraken_bot.git
+cd kraken_bot
+```
+
+2. Create and activate virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Set up your Kraken API keys:
-   - Create a Kraken account if you don't have one
-   - Generate API keys with trading permissions
-   - Add your API keys to `.env`:
+4. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your Kraken API credentials
+```
+
+## Usage 🎮
+
+1. Run backtesting to optimize strategy:
+```bash
+python backtesting.py
+```
+
+2. Start the trading bot:
+```bash
+python app.py
+```
+
+The bot will:
+- Monitor market prices
+- Identify trading opportunities
+- Execute trades based on ML predictions
+- Display real-time status in the terminal
+
+To stop the bot, press Ctrl+C.
+
+## Configuration ⚙️
+
+1. Environment Variables (.env):
 ```
 KRAKEN_API_KEY=your_api_key
 KRAKEN_API_SECRET=your_api_secret
 ```
 
-3. Download historical data and train the model:
-```bash
-python data_downloader.py  # Download historical data
-python train_model.py      # Train and save the model
+2. Trading Parameters (trading_strat_params.py):
+- Trading pairs
+- Risk management settings
+- Model parameters
+
+## Project Structure 📁
+
+```
+kraken_bot/
+├── app.py              # Main trading bot
+├── backtesting.py      # Backtesting engine
+├── model_functions.py  # ML model functions
+├── kraken_functions.py # Exchange API functions
+├── models/            # Trained models
+└── backtesting_results/ # Backtesting results
 ```
 
-4. Run the Streamlit app:
-```bash
-streamlit run app.py
-```
+## Future Directions and To Dos 🚀
 
-## Usage
+### 1. Enhanced Market Analysis
+- Integrate LLM-based crypto news sentiment analysis
+- Add social media trend analysis (Twitter, Reddit)
+- Implement on-chain metrics analysis
+- Include market correlation analysis
 
-1. The app will display the current XRP/EUR price and a candlestick chart of the last 24 hours.
+### 2. Model Improvements
+- Reduce overfitting with better cross-validation
+- Implement ensemble methods with multiple models
+- Add deep learning models (LSTM, Transformers)
+- Improve feature engineering with more technical indicators
+- Add feature importance analysis and selection
 
-2. Adjust trading parameters in the sidebar:
-   - Minimum confidence: Required confidence level for trade signals
-   - Position size: Amount in EUR to invest per trade
+### 3. Trading Strategies
+- Implement short selling for bear markets
+- Add grid trading capabilities
+- Develop market-specific strategies (bull/bear/sideways)
+- Implement dynamic position sizing
+- Add portfolio rebalancing
+- Improve take-profit and stop-loss strategies
 
-3. The model will continuously predict the maximum price in the next 12 hours.
+### 4. User Interface
+- Develop web interface for monitoring
+- Add real-time charts and analytics
+- Implement mobile notifications
+- Create trade performance dashboard
+- Add strategy customization interface
 
-4. When a profitable trade is detected:
-   - A BUY signal will appear
-   - Review the predicted return
-   - Click "Execute Trade" to confirm
+### 5. Risk Management
+- Implement better drawdown protection
+- Add portfolio-level risk management
+- Develop dynamic risk adjustment based on market conditions
+- Improve position exit strategies
+- Add volatility-based position sizing
 
-5. The app will automatically refresh every minute to update prices and predictions.
+### 6. Infrastructure
+- Add automated model retraining
+- Implement high-availability setup
+- Add comprehensive logging and monitoring
+- Improve error handling and recovery
+- Add automated backups
 
-## Files
+### 7. Fix and improve visualizations
+- Fix buy and sell signals
+- Add more visualizations of backtesting results and live trading
+- Add visualizations of model performance and predictions
 
-- `app.py`: Streamlit web interface
-- `train_model.py`: Model training script
-- `data_downloader.py`: Historical data downloader
-- `main.py`: Trading functions and API integration
-- `model.joblib`: Trained model file
-- `.env`: API configuration
+## Disclaimer ⚠️
 
-## Security
+Cryptocurrency trading involves significant risks:
+- Start with small amounts
+- Use proper risk management
+- Monitor the bot regularly
+- Never trade more than you can afford to lose
+- Use at your own risk. The author is not responsible for any losses.
 
-- Never share your API keys
-- Start with small position sizes
-- Monitor your trades regularly
-- Use stop-loss orders for risk management
+## License 📄
 
-## Disclaimer
+MIT License
 
-This bot is for educational purposes only. Cryptocurrency trading involves significant risk. Always do your own research and never trade more than you can afford to lose.
-
-## Future Development
-
-The following features are planned for future releases:
-
-1. **Multi-Currency Support**
-   - Simultaneous trading of multiple cryptocurrency pairs
-   - Portfolio optimization and risk management across currencies
-   - Correlation analysis between different crypto assets
-
-2. **LLM-Based Sentiment Analysis**
-   - Integration of large language models for crypto news analysis
-   - Real-time sentiment scoring of market news
-   - Social media trend analysis and impact assessment
-
-3. **Advanced Trading Strategies**
-   - Implementation of both bullish and bearish trading strategies
-   - Short-selling capabilities
-   - Market regime detection and strategy adaptation
-   - Analysis at different intervals (10 minutes, 1 hour, 4 hours, 1 day)
-
-4. **Enhanced User Interface**
-   - Detailed performance analytics and statistics
-   - Advanced charting and technical analysis tools
-   - Real-time market insights and trade recommendations
-   - Portfolio performance tracking
-
-5. **Advanced Feature Engineering**
-   - Integration of on-chain metrics
-   - Advanced technical indicators
-   - Market microstructure features
-   - Cross-market signals and correlations 
-
-6. **Improved and more realistic Backtesting**
-   - Historical backtesting of different trading strategies
-   - Performance metrics and comparison with other strategies
-   - Imporved parameter tuning and optimization

@@ -1,0 +1,204 @@
+Trade Details for MATIC/EUR
+==================================================
+
+Strategy Parameters:
+prediction_horizon: 8
+buy_threshold: 0.952587
+take_profit_threshold: 3.810943
+max_hold_hours: 12
+trailing_stop_distance: 1.283839
+min_rsi: 20
+max_rsi: 79
+min_volume_ratio: 0.964379
+max_volatility: 1.050379
+profit_lock_pct: 0.604102
+optimization_score: -51.428571
+
+Individual Trades:
+--------------------------------------------------
+
+Trade #1:
+Entry Time: 2024-12-31 12:15:00
+Entry Price: €0.4489
+Position Size: 2297.4073
+Entry Cost: €1031.3621
+Entry Fees: €2.6815
+Exit Time: 2024-12-31 13:15:00
+Exit Price: €0.4551
+Exit Value: €1045.4866
+Exit Fees: €2.7183
+Total Fees: €5.3998
+Net P&L: €8.7247
+Return: 0.85%
+Duration: 4.0 hours
+Balance After: €1097.1916
+
+Trade #2:
+Entry Time: 2025-01-01 11:45:00
+Entry Price: €0.4372
+Position Size: 2377.8249
+Entry Cost: €1039.6290
+Entry Fees: €2.7030
+Exit Time: 2025-01-01 13:15:00
+Exit Price: €0.4380
+Exit Value: €1041.4419
+Exit Fees: €2.7077
+Total Fees: €5.4108
+Net P&L: €-3.5979
+Return: -0.35%
+Duration: 6.0 hours
+Balance After: €1093.5937
+
+Trade #3:
+Entry Time: 2025-01-01 15:30:00
+Entry Price: €0.4429
+Position Size: 2339.5121
+Entry Cost: €1036.2198
+Entry Fees: €2.6942
+Exit Time: 2025-01-01 18:30:00
+Exit Price: €0.4552
+Exit Value: €1064.8811
+Exit Fees: €2.7687
+Total Fees: €5.4629
+Net P&L: €23.1984
+Return: 2.24%
+Duration: 12.0 hours
+Balance After: €1116.7921
+
+Trade #4:
+Entry Time: 2025-01-02 00:15:00
+Entry Price: €0.4638
+Position Size: 2281.4330
+Entry Cost: €1058.2012
+Entry Fees: €2.7513
+Exit Time: 2025-01-02 00:30:00
+Exit Price: €0.4645
+Exit Value: €1059.6518
+Exit Fees: €2.7551
+Total Fees: €5.5064
+Net P&L: €-4.0558
+Return: -0.38%
+Duration: 1.0 hours
+Balance After: €1112.7363
+
+Trade #5:
+Entry Time: 2025-01-02 03:30:00
+Entry Price: €0.4640
+Position Size: 2272.1674
+Entry Cost: €1054.3582
+Entry Fees: €2.7413
+Exit Time: 2025-01-02 03:45:00
+Exit Price: €0.4636
+Exit Value: €1053.3043
+Exit Fees: €2.7386
+Total Fees: €5.4799
+Net P&L: €-6.5338
+Return: -0.62%
+Duration: 1.0 hours
+Balance After: €1106.2026
+
+Trade #6:
+Entry Time: 2025-01-02 06:00:00
+Entry Price: €0.4666
+Position Size: 2246.2337
+Entry Cost: €1048.1672
+Entry Fees: €2.7252
+Exit Time: 2025-01-02 09:00:00
+Exit Price: €0.4717
+Exit Value: €1059.4677
+Exit Fees: €2.7546
+Total Fees: €5.4799
+Net P&L: €5.8206
+Return: 0.56%
+Duration: 12.0 hours
+Balance After: €1112.0232
+
+Trade #7:
+Entry Time: 2025-01-02 09:15:00
+Entry Price: €0.4728
+Position Size: 2228.4297
+Entry Cost: €1053.6824
+Entry Fees: €2.7396
+Exit Time: 2025-01-02 09:45:00
+Exit Price: €0.4757
+Exit Value: €1059.9794
+Exit Fees: €2.7559
+Total Fees: €5.4955
+Net P&L: €0.8015
+Return: 0.08%
+Duration: 2.0 hours
+Balance After: €1112.8246
+
+Trade #8:
+Entry Time: 2025-01-03 08:30:00
+Entry Price: €0.4724
+Position Size: 2231.9248
+Entry Cost: €1054.4419
+Entry Fees: €2.7415
+Exit Time: 2025-01-03 09:00:00
+Exit Price: €0.4777
+Exit Value: €1066.1036
+Exit Fees: €2.7719
+Total Fees: €5.5134
+Net P&L: €6.1483
+Return: 0.58%
+Duration: 2.0 hours
+Balance After: €1118.9729
+
+Trade #9:
+Entry Time: 2025-01-03 10:30:00
+Entry Price: €0.4794
+Position Size: 2211.4727
+Entry Cost: €1060.2676
+Entry Fees: €2.7567
+Exit Time: 2025-01-03 13:30:00
+Exit Price: €0.4897
+Exit Value: €1082.8588
+Exit Fees: €2.8154
+Total Fees: €5.5721
+Net P&L: €17.0191
+Return: 1.61%
+Duration: 12.0 hours
+Balance After: €1135.9920
+
+Trade #10:
+Entry Time: 2025-01-03 14:15:00
+Entry Price: €0.4951
+Position Size: 2173.8853
+Entry Cost: €1076.3938
+Entry Fees: €2.7986
+Exit Time: 2025-01-03 15:30:00
+Exit Price: €0.5027
+Exit Value: €1092.9176
+Exit Fees: €2.8416
+Total Fees: €5.6402
+Net P&L: €10.8836
+Return: 1.01%
+Duration: 5.0 hours
+Balance After: €1146.8756
+
+Trade #11:
+Entry Time: 2025-01-04 10:45:00
+Entry Price: €0.5034
+Position Size: 2158.9411
+Entry Cost: €1086.7064
+Entry Fees: €2.8254
+Exit Time: 2025-01-04 11:45:00
+Exit Price: €0.5027
+Exit Value: €1085.4044
+Exit Fees: €2.8221
+Total Fees: €5.6475
+Net P&L: €-6.9494
+Return: -0.64%
+Duration: 4.0 hours
+Balance After: €1139.9261
+
+Summary Metrics:
+--------------------------------------------------
+final_balance: 1139.9261
+total_return_pct: 4.73%
+n_trades: 11
+win_rate: 0.6364
+avg_return_per_trade: 0.4479
+total_fees_paid: €60.6084
+avg_hold_time: 5.5455

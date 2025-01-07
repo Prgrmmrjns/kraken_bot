@@ -1,0 +1,28 @@
+Trade Details for UNI/EUR
+==================================================
+
+Strategy Parameters:
+prediction_horizon: 16
+buy_threshold: 1.165542
+take_profit_threshold: 2.052798
+max_hold_hours: 8
+trailing_stop_distance: 0.744822
+min_rsi: 37
+max_rsi: 77
+min_volume_ratio: 1.394606
+max_volatility: 2.067581
+profit_lock_pct: 0.728398
+optimization_score: -100.000000
+
+Individual Trades:
+--------------------------------------------------
+
+Summary Metrics:
+--------------------------------------------------
+final_balance: 1139.9261
+total_return_pct: 0.00%
+n_trades: 0
+win_rate: 0
+avg_return_per_trade: 0
+total_fees_paid: 0
+avg_hold_time: 0

@@ -1,0 +1,28 @@
+Trade Details for SOL/EUR
+==================================================
+
+Strategy Parameters:
+prediction_horizon: flex_max
+buy_threshold: 0.530502
+take_profit_threshold: 1.956224
+max_hold_hours: 10
+trailing_stop_distance: 1.769028
+min_rsi: 34
+max_rsi: 67
+min_volume_ratio: 1.287015
+max_volatility: 2.681286
+profit_lock_pct: 0.901736
+optimization_score: -100.000000
+
+Individual Trades:
+--------------------------------------------------
+
+Summary Metrics:
+--------------------------------------------------
+final_balance: 1088.4670
+total_return_pct: 0.00%
+n_trades: 0
+win_rate: 0
+avg_return_per_trade: 0
+total_fees_paid: 0
+avg_hold_time: 0

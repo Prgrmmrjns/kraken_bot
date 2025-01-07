@@ -1,0 +1,28 @@
+Trade Details for LINK/EUR
+==================================================
+
+Strategy Parameters:
+prediction_horizon: 16
+buy_threshold: 1.553999
+take_profit_threshold: 3.623187
+max_hold_hours: 13
+trailing_stop_distance: 1.634027
+min_rsi: 34
+max_rsi: 61
+min_volume_ratio: 1.423931
+max_volatility: 1.771881
+profit_lock_pct: 0.761944
+optimization_score: -100.000000
+
+Individual Trades:
+--------------------------------------------------
+
+Summary Metrics:
+--------------------------------------------------
+final_balance: 1139.9261
+total_return_pct: 0.00%
+n_trades: 0
+win_rate: 0
+avg_return_per_trade: 0
+total_fees_paid: 0
+avg_hold_time: 0
