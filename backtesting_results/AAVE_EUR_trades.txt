@@ -2,16 +2,16 @@ Trade Details for AAVE/EUR
 ==================================================
 
 Strategy Parameters:
-prediction_horizon: 8
-buy_threshold: 1.236453
-take_profit_threshold: 2.651779
-max_hold_hours: 16
-trailing_stop_distance: 0.997075
-min_rsi: 32
-max_rsi: 61
-min_volume_ratio: 1.102133
-max_volatility: 3.509857
-profit_lock_pct: 0.357259
+prediction_horizon: 4
+buy_threshold: 0.779764
+take_profit_threshold: 0.747042
+max_hold_hours: 4
+trailing_stop_distance: 0.875121
+min_rsi: 27
+max_rsi: 66
+min_volume_ratio: 1.365991
+max_volatility: 2.507120
+profit_lock_pct: 0.520333
 optimization_score: -100.000000
 
 Individual Trades:
@@ -19,7 +19,7 @@ Individual Trades:
 
 Summary Metrics:
 --------------------------------------------------
-final_balance: 1139.9261
+final_balance: 110.1154
 total_return_pct: 0.00%
 n_trades: 0
 win_rate: 0

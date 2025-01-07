@@ -2,16 +2,16 @@ Trade Details for ETH/EUR
 ==================================================
 
 Strategy Parameters:
-prediction_horizon: 4
-buy_threshold: 0.943245
-take_profit_threshold: 1.521681
-max_hold_hours: 5
-trailing_stop_distance: 0.870169
-min_rsi: 33
-max_rsi: 75
-min_volume_ratio: 1.409284
-max_volatility: 3.561999
-profit_lock_pct: 0.325155
+prediction_horizon: 8
+buy_threshold: 1.335546
+take_profit_threshold: 1.212557
+max_hold_hours: 11
+trailing_stop_distance: 0.829674
+min_rsi: 25
+max_rsi: 71
+min_volume_ratio: 0.973658
+max_volatility: 1.636693
+profit_lock_pct: 0.632714
 optimization_score: -100.000000
 
 Individual Trades:
@@ -19,7 +19,7 @@ Individual Trades:
 
 Summary Metrics:
 --------------------------------------------------
-final_balance: 1000.0000
+final_balance: 100.0000
 total_return_pct: 0.00%
 n_trades: 0
 win_rate: 0

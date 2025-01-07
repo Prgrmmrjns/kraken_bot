@@ -119,6 +119,10 @@ def main():
         print("❌ Error: API credentials not found. Check your .env file.")
         return
 
+    # Initialize balance from trading config
+    available_balance = TRADING_CONFIG['risk_management']['total_balance']
+    print(f"\n💰 Initial Balance: €{available_balance:.2f}")
+
     # Load trading parameters for each pair
     pair_params = {}
     for pair, display_name in TRADING_PAIRS:
@@ -132,10 +136,14 @@ def main():
             print(f"\n{'='*50}")
             print(f"TRADING STATUS - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             print(f"{'='*50}")
-            print(f"\nActive Positions: {len(positions)}")
+            print(f"\n💰 Available Balance: €{available_balance:.2f}")
+            print(f"Active Positions: {len(positions)}")
             
             # Evaluate trading opportunities
             opportunities = []
+            best_opportunity = None
+            best_prediction = float('-inf')
+            
             for pair, display_name in TRADING_PAIRS:
                 try:
                     # Get current market data
@@ -167,20 +175,27 @@ def main():
                     prediction = model.predict(features)[-1]
                     current_price = float(df['close'].iloc[-1])
                     
+                    # Track best opportunity even if below threshold
+                    if prediction > best_prediction:
+                        best_prediction = prediction
+                        best_opportunity = {
+                            'pair': pair,
+                            'display_name': display_name,
+                            'current_price': current_price,
+                            'predicted_return': prediction,
+                            'params': pair_params[pair]
+                        }
+                    
                     # Check trading conditions
                     params = pair_params[pair]
                     if prediction > params['buy_threshold']:
                         opportunities.append({
-                            'pair': pair,  # Kraken's internal symbol (e.g., 'XXBTZEUR')
-                            'display_name': display_name,  # Human-readable name (e.g., 'BTC/EUR')
+                            'pair': pair,
+                            'display_name': display_name,
                             'current_price': current_price,
                             'predicted_return': prediction,
                             'params': params
                         })
-                        
-                        print(f"\n✨ Opportunity found for {display_name}:")
-                        print(f"💰 Current Price: €{current_price:.5f}")
-                        print(f"📈 Predicted Return: {prediction:+.2f}%")
                 
                 except Exception as e:
                     print(f"❌ Error processing {display_name}: {str(e)}")
@@ -200,29 +215,40 @@ def main():
                 print(f"Stop Loss: {best_opp['params']['trailing_stop']}%")
                 
                 # Calculate position size based on risk management
-                available_balance = float(os.getenv('MAX_POSITION_SIZE', 1000))
                 position_size = min(
                     available_balance,
                     available_balance * (float(os.getenv('RISK_PERCENTAGE', 1)) / 100)
                 )
                 
-                print(f"Suggested Position Size: €{position_size:.2f}")
-                
-                # Ask for user confirmation ONCE
-                confirm = input(f"\nExecute trade for {best_opp['display_name']} at €{best_opp['current_price']:.2f}? (y/n): ").lower()
-                if confirm == 'y':
-                    try:
-                        # Execute the trade using Kraken's internal symbol
-                        if execute_order(best_opp['pair'], position_size, "BUY", skip_confirm=True):
-                            print(f"✅ Buy order executed for {best_opp['display_name']}")
-                        else:
-                            print(f"❌ Failed to execute buy order for {best_opp['display_name']}")
-                    except Exception as e:
-                        print(f"❌ Error executing trade: {str(e)}")
+                if position_size < 10.0:  # Minimum trade amount
+                    print(f"\n⚠️ Available balance too low for trading (minimum €10.00)")
+                    print(f"Current balance: €{available_balance:.2f}")
                 else:
-                    print("Trade skipped by user.")
+                    print(f"Suggested Position Size: €{position_size:.2f}")
+                    
+                    # Ask for user confirmation ONCE
+                    confirm = input(f"\nExecute trade for {best_opp['display_name']} at €{best_opp['current_price']:.2f}? (y/n): ").lower()
+                    if confirm == 'y':
+                        try:
+                            # Execute the trade using Kraken's internal symbol
+                            if execute_order(best_opp['pair'], position_size, "BUY", skip_confirm=True):
+                                print(f"✅ Buy order executed for {best_opp['display_name']}")
+                                # Update available balance
+                                available_balance -= position_size
+                            else:
+                                print(f"❌ Failed to execute buy order for {best_opp['display_name']}")
+                        except Exception as e:
+                            print(f"❌ Error executing trade: {str(e)}")
+                    else:
+                        print("Trade skipped by user.")
             else:
                 print("\n😴 No trading opportunities found.")
+                if best_opportunity:
+                    print("\n👀 Most promising position (below threshold):")
+                    print(f"Trading Pair: {best_opportunity['display_name']}")
+                    print(f"Current Price: €{best_opportunity['current_price']:.5f}")
+                    print(f"Predicted Return: {best_opportunity['predicted_return']:+.2f}%")
+                    print(f"Buy Threshold: {best_opportunity['params']['buy_threshold']}%")
             
             print("\n💤 Sleeping for 5 minutes...")
             time.sleep(300)  # Sleep for 5 minutes

@@ -2,12 +2,13 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 import json
-from model_functions import create_features, train_model, optimize_trading_strategy, simulate_trading
+from model_functions import create_features, train_model, optimize_trading_strategy, simulate_trading, create_features_for_pair
 from kraken_functions import download_full_ohlc_data
 from trading_strat_params import TRADING_PAIRS, MODEL_CONFIG, TRADING_CONFIG
 import matplotlib.pyplot as plt
 import os
 import joblib
+import optuna
 
 def download_and_prepare_data():
     """Download and prepare data for all trading pairs."""
@@ -61,18 +62,24 @@ def visualize_trades(df, results, pair_name):
         entry_price = buy['price']
         exit_price = sell['price']
         
-        # Plot entry/exit points
-        ax1.scatter(entry_time, entry_price, color='green', marker='^', s=100)
-        ax1.scatter(exit_time, exit_price, color='red', marker='v', s=100)
-        ax1.plot([entry_time, exit_time], [entry_price, exit_price], 'gray', alpha=0.3, ls='--')
+        # Plot entry/exit points with correct timestamps
+        ax1.scatter(entry_time, entry_price, color='green', marker='^', s=100, zorder=5)
+        ax1.scatter(exit_time, exit_price, color='red', marker='v', s=100, zorder=5)
         
-        # Annotate return
-        y_offset = 10 if exit_price > entry_price else -20
+        # Draw line connecting entry and exit
+        ax1.plot([entry_time, exit_time], [entry_price, exit_price], 'gray', alpha=0.3, ls='--', zorder=4)
+        
+        # Annotate return percentage at exit point
+        y_offset = (df['close'].max() - df['close'].min()) * 0.02  # Dynamic offset based on price range
+        y_pos = exit_price + y_offset if exit_price > entry_price else exit_price - y_offset
         ax1.annotate(f"{sell['return_percent']:.1f}%", 
                     xy=(exit_time, exit_price),
-                    xytext=(10, y_offset), 
+                    xytext=(0, 10 if exit_price > entry_price else -20),
                     textcoords='offset points',
-                    fontsize=8)
+                    ha='center',
+                    fontsize=8,
+                    bbox=dict(facecolor='white', edgecolor='none', alpha=0.7),
+                    zorder=6)
         
         # Track cumulative return
         current_return += sell['return_percent']
@@ -349,6 +356,85 @@ def save_trading_params(pair, params, score):
         f.write(f"max_volatility={params['max_volatility']}\n")
         f.write(f"profit_lock={params['profit_lock']}\n")
         f.write(f"score={score}\n")
+
+def optimize_trading_strategy(df, model, initial_balance=1000.0, n_trials=25):
+    """
+    Optimize trading strategy parameters using Optuna.
+    Returns the best parameters found.
+    """
+    def objective(trial):
+        # Define parameter search space with simplified bounds
+        params = {
+            'prediction_horizon': trial.suggest_categorical('prediction_horizon', [4, 8]),  # Only 1h or 2h
+            'buy_threshold': trial.suggest_float('buy_threshold', 0.5, 2.0),
+            'take_profit_threshold': trial.suggest_float('take_profit_threshold', 0.5, 3.0),
+            'max_hold_hours': trial.suggest_int('max_hold_hours', 4, 12),
+            'trailing_stop_distance': trial.suggest_float('trailing_stop_distance', 0.3, 1.5),
+            'min_rsi': trial.suggest_int('min_rsi', 25, 35),
+            'max_rsi': trial.suggest_int('max_rsi', 65, 75),
+            'min_volume_ratio': trial.suggest_float('min_volume_ratio', 0.8, 1.5),
+            'max_volatility': trial.suggest_float('max_volatility', 1.0, 3.0),
+            'profit_lock_pct': trial.suggest_float('profit_lock_pct', 0.3, 0.8)
+        }
+        
+        # Use only recent data for faster optimization
+        recent_data = df.tail(1000)  # Last 1000 periods
+        features_df = create_features_for_pair(recent_data, '', params['prediction_horizon'])
+        
+        # Get features and target
+        features = features_df.drop(columns=['timestamp', 'target'])
+        if 'predicted_price' in features.columns:
+            features = features.drop(columns=['predicted_price'])
+            
+        # Train a quick model
+        X = features
+        y = features_df['target']
+        model = train_model(X, X, y, y, quick_mode=True)
+        
+        # Get predictions
+        recent_data = recent_data[:len(features)]  # Align lengths
+        recent_data['predicted_price'] = model.predict(features)
+        
+        # Run simulation with these parameters
+        results = simulate_trading(
+            df=recent_data,
+            predicted_price="predicted_price",
+            buy_threshold=params['buy_threshold'],
+            take_profit_threshold=params['take_profit_threshold'],
+            max_hold_hours=params['max_hold_hours'],
+            trailing_stop_distance=params['trailing_stop_distance'],
+            min_rsi=params['min_rsi'],
+            max_rsi=params['max_rsi'],
+            min_volume_ratio=params['min_volume_ratio'],
+            max_volatility=params['max_volatility'],
+            profit_lock_pct=params['profit_lock_pct'],
+            fee_rate=TRADING_CONFIG['risk_management']['fee_rate'],
+            initial_balance=initial_balance
+        )
+        
+        if not results['trades']:
+            return -100.0  # Penalize no trades
+        
+        returns = pd.Series([t['return_percent'] for t in results['trades'] if t['type'] == 'sell'])
+        if len(returns) < 3:  # Require at least 3 trades
+            return -50.0 - (3 - len(returns)) * 10
+            
+        # Simplified scoring
+        mean_return = returns.mean()
+        win_rate = (returns > 0).mean()
+        
+        # Basic score based on returns and win rate
+        score = mean_return * win_rate * 100
+        
+        return score
+
+    study = optuna.create_study(direction='maximize')
+    study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
+    
+    best_params = study.best_params
+    best_params['optimization_score'] = study.best_value
+    
+    return best_params
 
 if __name__ == "__main__":
     run_backtest() 

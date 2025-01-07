@@ -2,187 +2,219 @@ Trade Details for ADA/EUR
 ==================================================
 
 Strategy Parameters:
-prediction_horizon: flex_max
-buy_threshold: 0.788510
-take_profit_threshold: 3.525389
-max_hold_hours: 9
-trailing_stop_distance: 0.956611
-min_rsi: 33
-max_rsi: 70
-min_volume_ratio: 1.452229
-max_volatility: 3.523160
-profit_lock_pct: 0.517727
-optimization_score: -52.727273
+prediction_horizon: 4
+buy_threshold: 1.174331
+take_profit_threshold: 1.018855
+max_hold_hours: 8
+trailing_stop_distance: 1.279923
+min_rsi: 35
+max_rsi: 73
+min_volume_ratio: 1.352286
+max_volatility: 2.674522
+profit_lock_pct: 0.669090
+optimization_score: -0.000000
 
 Individual Trades:
 --------------------------------------------------
 
 Trade #1:
-Entry Time: 2024-12-31 12:00:00
-Entry Price: €0.8257
-Position Size: 1144.6132
-Entry Cost: €945.1022
-Entry Fees: €2.4573
-Exit Time: 2024-12-31 13:15:00
-Exit Price: €0.8417
-Exit Value: €963.4472
-Exit Fees: €2.5050
-Total Fees: €4.9622
-Net P&L: €13.3828
-Return: 1.42%
-Duration: 5.0 hours
-Balance After: €1010.8138
-
-Trade #2:
 Entry Time: 2025-01-01 10:00:00
 Entry Price: €0.8178
-Position Size: 1171.1418
-Entry Cost: €957.7829
-Entry Fees: €2.4902
-Exit Time: 2025-01-01 12:15:00
-Exit Price: €0.8312
-Exit Value: €973.4065
-Exit Fees: €2.5309
-Total Fees: €5.0211
-Net P&L: €10.6025
-Return: 1.11%
-Duration: 9.0 hours
-Balance After: €1021.4163
+Position Size: 117.4544
+Entry Cost: €96.0566
+Entry Fees: €0.2497
+Exit Time: 2025-01-01 12:00:00
+Exit Price: €0.8250
+Exit Value: €96.9042
+Exit Fees: €0.2520
+Total Fees: €0.5017
+Net P&L: €0.3459
+Return: 0.36%
+Duration: 8.0 hours
+Balance After: €101.7210
+
+Trade #2:
+Entry Time: 2025-01-01 15:15:00
+Entry Price: €0.8359
+Position Size: 115.3000
+Entry Cost: €96.3843
+Entry Fees: €0.2506
+Exit Time: 2025-01-01 15:45:00
+Exit Price: €0.8456
+Exit Value: €97.5024
+Exit Fees: €0.2535
+Total Fees: €0.5041
+Net P&L: €0.6140
+Return: 0.64%
+Duration: 2.0 hours
+Balance After: €102.3350
 
 Trade #3:
-Entry Time: 2025-01-01 15:45:00
-Entry Price: €0.8465
-Position Size: 1143.3479
-Entry Cost: €967.8291
-Entry Fees: €2.5164
-Exit Time: 2025-01-01 16:00:00
-Exit Price: €0.8579
-Exit Value: €980.8277
-Exit Fees: €2.5502
-Total Fees: €5.0665
-Net P&L: €7.9320
-Return: 0.82%
-Duration: 1.0 hours
-Balance After: €1029.3483
-
-Trade #4:
 Entry Time: 2025-01-01 18:15:00
 Entry Price: €0.8617
-Position Size: 1131.8444
-Entry Cost: €975.3450
-Entry Fees: €2.5359
+Position Size: 112.5248
+Entry Cost: €96.9661
+Entry Fees: €0.2521
 Exit Time: 2025-01-01 18:30:00
 Exit Price: €0.8724
-Exit Value: €987.3708
-Exit Fees: €2.5672
-Total Fees: €5.1031
-Net P&L: €6.9227
+Exit Value: €98.1617
+Exit Fees: €0.2552
+Total Fees: €0.5073
+Net P&L: €0.6882
 Return: 0.71%
 Duration: 1.0 hours
-Balance After: €1036.2711
+Balance After: €103.0232
 
-Trade #5:
+Trade #4:
 Entry Time: 2025-01-01 22:45:00
 Entry Price: €0.8894
-Position Size: 1103.9513
-Entry Cost: €981.9046
-Entry Fees: €2.5530
+Position Size: 109.7518
+Entry Cost: €97.6182
+Entry Fees: €0.2538
 Exit Time: 2025-01-02 00:00:00
 Exit Price: €0.9004
-Exit Value: €993.9686
-Exit Fees: €2.5843
-Total Fees: €5.1373
-Net P&L: €6.9268
+Exit Value: €98.8176
+Exit Fees: €0.2569
+Total Fees: €0.5107
+Net P&L: €0.6886
 Return: 0.71%
 Duration: 5.0 hours
-Balance After: €1043.1979
+Balance After: €103.7118
 
-Trade #6:
+Trade #5:
 Entry Time: 2025-01-02 07:45:00
 Entry Price: €0.9006
-Position Size: 1097.5147
-Entry Cost: €988.4680
-Entry Fees: €2.5700
-Exit Time: 2025-01-02 10:00:00
-Exit Price: €0.9156
-Exit Value: €1004.9053
-Exit Fees: €2.6128
-Total Fees: €5.1828
-Net P&L: €11.2546
-Return: 1.14%
-Duration: 9.0 hours
-Balance After: €1054.4524
+Position Size: 109.1119
+Entry Cost: €98.2708
+Entry Fees: €0.2555
+Exit Time: 2025-01-02 09:15:00
+Exit Price: €0.9095
+Exit Value: €99.2421
+Exit Fees: €0.2580
+Total Fees: €0.5135
+Net P&L: €0.4578
+Return: 0.47%
+Duration: 6.0 hours
+Balance After: €104.1696
 
-Trade #7:
+Trade #6:
 Entry Time: 2025-01-03 01:45:00
 Entry Price: €0.9486
-Position Size: 1053.2290
-Entry Cost: €999.1321
-Entry Fees: €2.5977
-Exit Time: 2025-01-03 03:45:00
-Exit Price: €0.9999
-Exit Value: €1053.0929
-Exit Fees: €2.7380
-Total Fees: €5.3358
-Net P&L: €48.6251
-Return: 4.87%
-Duration: 8.0 hours
-Balance After: €1103.0775
+Position Size: 104.0488
+Entry Cost: €98.7045
+Entry Fees: €0.2566
+Exit Time: 2025-01-03 02:15:00
+Exit Price: €0.9672
+Exit Value: €100.6376
+Exit Fees: €0.2617
+Total Fees: €0.5183
+Net P&L: €1.4148
+Return: 1.43%
+Duration: 2.0 hours
+Balance After: €105.5845
 
-Trade #8:
+Trade #7:
 Entry Time: 2025-01-03 08:30:00
 Entry Price: €1.0228
-Position Size: 1021.8625
-Entry Cost: €1045.2061
-Entry Fees: €2.7175
-Exit Time: 2025-01-03 08:45:00
-Exit Price: €1.0122
-Exit Value: €1034.2921
-Exit Fees: €2.6892
-Total Fees: €5.4067
-Net P&L: €-16.3207
-Return: -1.56%
-Duration: 1.0 hours
-Balance After: €1086.7568
+Position Size: 97.8107
+Entry Cost: €100.0451
+Entry Fees: €0.2601
+Exit Time: 2025-01-03 10:30:00
+Exit Price: €1.0356
+Exit Value: €101.2934
+Exit Fees: €0.2634
+Total Fees: €0.5235
+Net P&L: €0.7248
+Return: 0.72%
+Duration: 8.0 hours
+Balance After: €106.3092
+
+Trade #8:
+Entry Time: 2025-01-04 12:30:00
+Entry Price: €1.0364
+Position Size: 97.1973
+Entry Cost: €100.7319
+Entry Fees: €0.2619
+Exit Time: 2025-01-04 13:15:00
+Exit Price: €1.0439
+Exit Value: €101.4671
+Exit Fees: €0.2638
+Total Fees: €0.5257
+Net P&L: €0.2096
+Return: 0.21%
+Duration: 3.0 hours
+Balance After: €106.5188
 
 Trade #9:
 Entry Time: 2025-01-05 04:15:00
 Entry Price: €1.0338
-Position Size: 996.0525
-Entry Cost: €1029.7416
-Entry Fees: €2.6773
-Exit Time: 2025-01-05 06:00:00
-Exit Price: €1.0399
-Exit Value: €1035.7619
-Exit Fees: €2.6930
-Total Fees: €5.3703
-Net P&L: €0.6500
-Return: 0.06%
-Duration: 7.0 hours
-Balance After: €1087.4068
+Position Size: 97.6284
+Entry Cost: €100.9304
+Entry Fees: €0.2624
+Exit Time: 2025-01-05 05:30:00
+Exit Price: €1.0352
+Exit Value: €101.0678
+Exit Fees: €0.2628
+Total Fees: €0.5252
+Net P&L: €-0.3878
+Return: -0.38%
+Duration: 5.0 hours
+Balance After: €106.1310
 
 Trade #10:
+Entry Time: 2025-01-05 05:45:00
+Entry Price: €1.0460
+Position Size: 96.1381
+Entry Cost: €100.5630
+Entry Fees: €0.2615
+Exit Time: 2025-01-05 06:00:00
+Exit Price: €1.0399
+Exit Value: €99.9708
+Exit Fees: €0.2599
+Total Fees: €0.5214
+Net P&L: €-1.1136
+Return: -1.11%
+Duration: 1.0 hours
+Balance After: €105.0174
+
+Trade #11:
+Entry Time: 2025-01-06 14:45:00
+Entry Price: €1.0499
+Position Size: 94.7793
+Entry Cost: €99.5078
+Entry Fees: €0.2587
+Exit Time: 2025-01-06 15:00:00
+Exit Price: €1.0576
+Exit Value: €100.2374
+Exit Fees: €0.2606
+Total Fees: €0.5193
+Net P&L: €0.2102
+Return: 0.21%
+Duration: 1.0 hours
+Balance After: €105.2276
+
+Trade #12:
 Entry Time: 2025-01-07 06:45:00
 Entry Price: €1.0576
-Position Size: 974.2195
-Entry Cost: €1030.3575
-Entry Fees: €2.6789
-Exit Time: 2025-01-07 08:00:00
-Exit Price: €1.0642
-Exit Value: €1036.7923
-Exit Fees: €2.6957
-Total Fees: €5.3746
-Net P&L: €1.0602
-Return: 0.10%
-Duration: 5.0 hours
-Balance After: €1088.4670
+Position Size: 94.2746
+Entry Cost: €99.7070
+Entry Fees: €0.2592
+Exit Time: 2025-01-07 08:15:00
+Exit Price: €1.0831
+Exit Value: €102.1077
+Exit Fees: €0.2655
+Total Fees: €0.5247
+Net P&L: €1.8760
+Return: 1.88%
+Duration: 6.0 hours
+Balance After: €107.1036
 
 Summary Metrics:
 --------------------------------------------------
-final_balance: 1088.4670
-total_return_pct: 9.13%
-n_trades: 10
-win_rate: 0.9000
-avg_return_per_trade: 0.9368
-total_fees_paid: €51.9603
-avg_hold_time: 5.1000
+final_balance: 107.1036
+total_return_pct: 5.65%
+n_trades: 12
+win_rate: 0.8333
+avg_return_per_trade: 0.4871
+total_fees_paid: €6.1955
+avg_hold_time: 4.0000

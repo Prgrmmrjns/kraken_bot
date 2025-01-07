@@ -2,16 +2,16 @@ Trade Details for BTC/EUR
 ==================================================
 
 Strategy Parameters:
-prediction_horizon: flex_max
-buy_threshold: 2.249766
-take_profit_threshold: 4.856453
-max_hold_hours: 2
-trailing_stop_distance: 0.600532
-min_rsi: 33
-max_rsi: 61
-min_volume_ratio: 1.256482
-max_volatility: 2.521576
-profit_lock_pct: 0.829125
+prediction_horizon: 8
+buy_threshold: 1.244638
+take_profit_threshold: 1.524729
+max_hold_hours: 10
+trailing_stop_distance: 0.493434
+min_rsi: 32
+max_rsi: 75
+min_volume_ratio: 1.162304
+max_volatility: 2.193575
+profit_lock_pct: 0.416608
 optimization_score: -100.000000
 
 Individual Trades:
@@ -19,7 +19,7 @@ Individual Trades:
 
 Summary Metrics:
 --------------------------------------------------
-final_balance: 1000.0000
+final_balance: 100.0000
 total_return_pct: 0.00%
 n_trades: 0
 win_rate: 0

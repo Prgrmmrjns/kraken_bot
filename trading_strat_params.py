@@ -29,46 +29,46 @@ TRADING_PAIRS = [
 # Adjust carefully as they affect prediction accuracy and training time
 MODEL_CONFIG = {
     'validation_split': 0.2,    # 20% of data used for validation
-    'n_trials': 100,           # Increased number of trials for better optimization
+    'n_trials': 25,            # Reduced number of trials for faster optimization
     'random_state': 42,        # Seed for reproducibility
-    'early_stopping': 50,      # Stops training if no improvement
+    'early_stopping': 20,      # Reduced early stopping rounds
     'interval_minutes': 15,    # Data granularity
     'prediction_window': 4,    # Predict price movement over next 1 hour
-    'fast_training': True,    # Disable fast training for better accuracy
+    'fast_training': True,     # Enable fast training mode
     
-    # Default parameters for fast training (used when fast_training is True)
+    # Default parameters for fast training
     'fast_params': {
-        'n_estimators': 500,
-        'learning_rate': 0.01,
-        'max_depth': 5,
-        'min_child_samples': 50,
+        'n_estimators': 200,       # Reduced number of trees
+        'learning_rate': 0.05,     # Increased learning rate for faster convergence
+        'max_depth': 4,            # Reduced tree depth
+        'min_child_samples': 20,   # Reduced minimum samples
         'subsample': 0.8,
         'colsample_bytree': 0.8,
         'reg_alpha': 0.1,
         'reg_lambda': 0.1
     },
     
-    # Technical indicator parameters
+    # Technical indicator parameters (simplified)
     'periods': {
         'rsi': 14,
         'price_channel': 20,
-        'sma': [5, 10, 20, 50],   # Added longer SMA
-        'ema': [5, 10, 20, 50],   # Added longer EMA
-        'volume_ma': [5, 20],     # Added longer volume MA
-        'volatility_ma': [5, 20], # Added longer volatility MA
-        'price_change': [1, 2, 5, 10] # Added longer price change period
+        'sma': [5, 20],        # Reduced number of SMAs
+        'ema': [5, 20],        # Reduced number of EMAs
+        'volume_ma': [5],      # Single volume MA
+        'volatility_ma': [5],  # Single volatility MA
+        'price_change': [1, 5] # Reduced price change periods
     },
     
-    # Model hyperparameter search space
+    # Reduced parameter search space
     'param_space': {
-        'n_estimators': (300, 1000),   # Increased number of trees
-        'learning_rate': (0.001, 0.1),  # Wider learning rate range
-        'max_depth': (3, 8),           # Increased max depth range
-        'min_child_samples': (30, 100), # Increased min samples
-        'subsample': (0.6, 0.9),       # Wider subsample range
-        'colsample_bytree': (0.6, 0.9), # Wider column sample range
-        'reg_alpha': (0.01, 1.0),      # Increased regularization range
-        'reg_lambda': (0.01, 1.0)      # Increased regularization range
+        'n_estimators': (100, 300),    # Reduced range
+        'learning_rate': (0.01, 0.1),  # Simplified range
+        'max_depth': (3, 5),           # Reduced depth range
+        'min_child_samples': (20, 50), # Reduced samples range
+        'subsample': (0.7, 0.9),       # Simplified range
+        'colsample_bytree': (0.7, 0.9),# Simplified range
+        'reg_alpha': (0.01, 0.5),      # Reduced range
+        'reg_lambda': (0.01, 0.5)      # Reduced range
     }
 }
 
@@ -91,7 +91,7 @@ TRADING_CONFIG = {
     
     # Risk management parameters
     'risk_management': {
-        'total_balance': 1000.0,   # Total trading balance in EUR
+        'total_balance': 100.0,   # Total trading balance in EUR
         'max_positions': 3,        # Allow more simultaneous positions
         'max_position_size': 100.0, # Maximum single position size in EUR
         'trailing_stop_distance': 0.5,  # Tighter trailing stop

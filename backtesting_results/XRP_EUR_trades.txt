@@ -2,43 +2,75 @@ Trade Details for XRP/EUR
 ==================================================
 
 Strategy Parameters:
-prediction_horizon: flex_max
-buy_threshold: 0.630499
-take_profit_threshold: 4.175601
-max_hold_hours: 6
-trailing_stop_distance: 1.166058
-min_rsi: 20
-max_rsi: 80
-min_volume_ratio: 0.712382
-max_volatility: 4.384644
-profit_lock_pct: 0.694353
-optimization_score: -30.000000
+prediction_horizon: 8
+buy_threshold: 1.272860
+take_profit_threshold: 0.982496
+max_hold_hours: 11
+trailing_stop_distance: 0.911662
+min_rsi: 27
+max_rsi: 72
+min_volume_ratio: 1.055697
+max_volatility: 1.333013
+profit_lock_pct: 0.448384
+optimization_score: 1.153668
 
 Individual Trades:
 --------------------------------------------------
 
 Trade #1:
-Entry Time: 2025-01-01 14:15:00
-Entry Price: €2.0964
-Position Size: 451.9810
-Entry Cost: €947.5364
-Entry Fees: €2.4636
-Exit Time: 2025-01-01 15:15:00
-Exit Price: €2.1016
-Exit Value: €949.9007
-Exit Fees: €2.4697
-Total Fees: €4.9333
-Net P&L: €-2.5690
-Return: -0.27%
-Duration: 4.0 hours
-Balance After: €997.4310
+Entry Time: 2024-12-31 12:30:00
+Entry Price: €2.0070
+Position Size: 47.2115
+Entry Cost: €94.7536
+Entry Fees: €0.2464
+Exit Time: 2024-12-31 12:45:00
+Exit Price: €2.0025
+Exit Value: €94.5414
+Exit Fees: €0.2458
+Total Fees: €0.4922
+Net P&L: €-0.7044
+Return: -0.74%
+Duration: 1.0 hours
+Balance After: €99.2956
+
+Trade #2:
+Entry Time: 2025-01-01 10:30:00
+Entry Price: €2.0391
+Position Size: 46.1413
+Entry Cost: €94.0862
+Entry Fees: €0.2446
+Exit Time: 2025-01-01 11:15:00
+Exit Price: €2.0544
+Exit Value: €94.7933
+Exit Fees: €0.2465
+Total Fees: €0.4911
+Net P&L: €0.2159
+Return: 0.23%
+Duration: 3.0 hours
+Balance After: €99.5116
+
+Trade #3:
+Entry Time: 2025-01-01 23:15:00
+Entry Price: €2.2511
+Position Size: 41.8868
+Entry Cost: €94.2908
+Entry Fees: €0.2452
+Exit Time: 2025-01-02 00:00:00
+Exit Price: €2.3074
+Exit Value: €96.6508
+Exit Fees: €0.2513
+Total Fees: €0.4964
+Net P&L: €1.8635
+Return: 1.98%
+Duration: 3.0 hours
+Balance After: €101.3751
 
 Summary Metrics:
 --------------------------------------------------
-final_balance: 997.4310
-total_return_pct: -0.26%
-n_trades: 1
-win_rate: 0.0000
-avg_return_per_trade: -0.2711
-total_fees_paid: €4.9333
-avg_hold_time: 4.0000
+final_balance: 101.3751
+total_return_pct: 1.38%
+n_trades: 3
+win_rate: 0.6667
+avg_return_per_trade: 0.4875
+total_fees_paid: €1.4797
+avg_hold_time: 2.3333
