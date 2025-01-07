@@ -1,16 +1,16 @@
 {
     "strategy_params": {
-        "buy_threshold": 0.8261695172970656,
-        "take_profit": 1.5256194069714264,
-        "max_hold_time": 8,
-        "trailing_stop": 0.6263217688245433,
-        "target_shift": 8,
-        "target_window": 6,
+        "buy_threshold": 1.6220797227992945,
+        "take_profit": 1.965750811785811,
+        "max_hold_time": 7,
+        "trailing_stop": 0.8390775774215231,
+        "target_shift": 6,
+        "target_window": 5,
         "optimization_score": -Infinity
     },
     "trades": [],
     "metrics": {
-        "final_balance": 7.200991009882108,
+        "final_balance": 0.07931140011771597,
         "total_return": 0.0,
         "n_trades": 0,
         "win_rate": 0,

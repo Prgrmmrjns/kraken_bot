@@ -1,5 +1,5 @@
 {
-    "training_date": "2025-01-07 17:07:52",
+    "training_date": "2025-01-07 17:57:15",
     "parameters": {
         "objective": "regression",
         "random_state": 42,
@@ -12,30 +12,30 @@
         "colsample_bytree": 0.8
     },
     "metrics": {
-        "val_mse": 0.37463765973818597,
-        "val_rmse": 0.6120765146108662,
+        "val_mse": 1.6379908392789417,
+        "val_rmse": 1.2798401616135282,
         "feature_importance": {
-            "open": 22.0,
-            "high": 13.0,
-            "low": 26.0,
-            "close": 9.0,
-            "vwap": 18.0,
-            "volume": 19.0,
-            "count": 5.0,
-            "price_change_1": 31.0,
-            "price_change_5": 33.0,
-            "volume_ratio": 13.0,
-            "sma_5": 53.0,
-            "sma_20": 53.0,
-            "sma_dist_5": 17.0,
-            "sma_dist_20": 45.0,
-            "volatility": 41.0,
-            "rsi": 29.0
+            "open": 11.0,
+            "high": 6.0,
+            "low": 10.0,
+            "close": 3.0,
+            "vwap": 1.0,
+            "volume": 1.0,
+            "count": 0.0,
+            "price_change_1": 0.0,
+            "price_change_5": 43.0,
+            "volume_ratio": 0.0,
+            "sma_5": 61.0,
+            "sma_20": 96.0,
+            "sma_dist_5": 56.0,
+            "sma_dist_20": 56.0,
+            "volatility": 60.0,
+            "rsi": 71.0
         }
     },
     "data_info": {
-        "train_samples": 621,
-        "val_samples": 621,
+        "train_samples": 231,
+        "val_samples": 231,
         "features": [
             "open",
             "high",
