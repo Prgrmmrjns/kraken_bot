@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "TIA/EUR",
+    "strategy_params": {
+        "buy_threshold": 3.783794477939686,
+        "take_profit": 1.9073872514265446,
+        "max_hold_time": 19,
+        "trailing_stop": 1.6027307637223212,
+        "min_rsi": 39.455069678125646,
+        "max_rsi": 68.6393534908754,
+        "min_volume_ratio": 1.069216073121271,
+        "max_volatility": 3.331513409402633,
+        "profit_lock": 1.6158008314463665,
+        "optimization_score": 0.0
+    }
+}

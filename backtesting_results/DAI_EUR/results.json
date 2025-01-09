@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "DAI/EUR",
+    "strategy_params": {
+        "buy_threshold": 4.024771852801981,
+        "take_profit": 4.555527712352827,
+        "max_hold_time": 7,
+        "trailing_stop": 1.7305469409784175,
+        "min_rsi": 33.879173277003616,
+        "max_rsi": 72.95416597970367,
+        "min_volume_ratio": 1.5654098559010257,
+        "max_volatility": 1.539602547960719,
+        "profit_lock": 1.7458204301269957,
+        "optimization_score": 0.0
+    }
+}

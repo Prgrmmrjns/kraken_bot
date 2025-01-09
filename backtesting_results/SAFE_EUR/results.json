@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "SAFE/EUR",
+    "strategy_params": {
+        "buy_threshold": 2.419584996305961,
+        "take_profit": 2.6388951413380783,
+        "max_hold_time": 11,
+        "trailing_stop": 1.8924114413286608,
+        "min_rsi": 33.434774836005765,
+        "max_rsi": 69.18806347571717,
+        "min_volume_ratio": 1.5776879575614002,
+        "max_volatility": 2.1350263614354894,
+        "profit_lock": 1.5162559069640666,
+        "optimization_score": 0.0
+    }
+}

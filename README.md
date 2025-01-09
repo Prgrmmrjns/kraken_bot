@@ -1,148 +1,121 @@
 # Kraken Trading Bot 🚀
 
-A command-line cryptocurrency trading bot using machine learning to predict price movements and execute trades on the Kraken exchange.
+A sophisticated cryptocurrency trading bot for the Kraken exchange, featuring multiple ML models, automated trading, and comprehensive backtesting.
 
-## Features 🌟
+## Features 🚀
 
-- ML-based price prediction using LightGBM
-- Real-time market monitoring
-- Automated trading with risk management
-- Backtesting with visualizations
-- Simple command-line interface
-
-## Prerequisites ⚙️
-
-- Python 3.10+
-- Kraken account with API access
-
-## Installation 🛠️
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/kraken_bot.git
-cd kraken_bot
-```
-
-2. Create and activate virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your Kraken API credentials
-```
-
-## Usage 🎮
-
-1. Run backtesting to optimize strategy:
-```bash
-python backtesting.py
-```
-
-2. Start the trading bot:
-```bash
-python app.py
-```
-
-The bot will:
-- Monitor market prices
-- Identify trading opportunities
-- Execute trades based on ML predictions
-- Display real-time status in the terminal
-
-To stop the bot, press Ctrl+C.
+- Multiple trading models:
+  - LightGBM (gradient boosting)
+  - MACD (technical analysis)
+  - Deep Neural Network
+  - Custom model support
+- Automatic model selection and optimization
+- Real-time trading with risk management
+- Comprehensive backtesting
+- Historical data storage and management
+- Performance tracking and reporting
 
 ## Configuration ⚙️
 
-1. Environment Variables (.env):
-```
-KRAKEN_API_KEY=your_api_key
-KRAKEN_API_SECRET=your_api_secret
-```
+### Model Selection
 
-2. Trading Parameters (trading_strat_params.py):
-- Trading pairs
-- Risk management settings
-- Model parameters
+The bot supports multiple models and automatic model selection. Configure in `trading_strat_params.py`:
 
-## Project Structure 📁
-
-```
-kraken_bot/
-├── app.py              # Main trading bot
-├── backtesting.py      # Backtesting engine
-├── model_functions.py  # ML model functions
-├── kraken_functions.py # Exchange API functions
-├── models/            # Trained models
-└── backtesting_results/ # Backtesting results
+```python
+MODEL_CONFIG = {
+    'model_type': 'auto',  # Choose from: 'auto', 'lightgbm', 'macd', 'dnn'
+    'fast_training': True,  # Set to False for hyperparameter optimization
+    'optimization_trials': 100,  # Number of trials for optimization
+}
 ```
 
-## Future Directions and To Dos 🚀
+When `model_type` is set to 'auto', the bot will:
+1. Test all available models
+2. Compare their performance (RMSE and R²)
+3. Select the best performing model
+4. Optionally optimize hyperparameters if `fast_training` is False
 
-### 1. Enhanced Market Analysis
-- Integrate LLM-based crypto news sentiment analysis
-- Add social media trend analysis (Twitter, Reddit)
-- Implement on-chain metrics analysis
-- Include market correlation analysis
+### Custom Models
 
-### 2. Model Improvements
-- Reduce overfitting with better cross-validation
-- Implement ensemble methods with multiple models
-- Add deep learning models (LSTM, Transformers)
-- Improve feature engineering with more technical indicators
-- Add feature importance analysis and selection
-- Continuous download of new data and model retraining
+You can create your own model by:
+1. Inheriting from the `BaseModel` class in `model.py`
+2. Implementing required methods: `train()`, `predict()`, `optimize()`
+3. Adding your model to the `get_model()` function
 
-### 3. Trading Strategies
-- Implement short selling for bear markets
-- Add grid trading capabilities
-- Develop market-specific strategies (bull/bear/sideways)
-- Implement dynamic position sizing
-- Add portfolio rebalancing
-- Improve take-profit and stop-loss strategies
+Example:
+```python
+class MyCustomModel(BaseModel):
+    def __init__(self, params=None):
+        super().__init__('MyModel')
+        self.params = params or {}
+        
+    def train(self, X_train, y_train, X_val=None, y_val=None):
+        # Implement training logic
+        pass
+        
+    def predict(self, X):
+        # Implement prediction logic
+        return predictions
+        
+    def optimize(self, trial, X_train, y_train, X_val, y_val):
+        # Implement optimization logic
+        return rmse
+```
 
-### 4. User Interface
-- Develop web interface for monitoring
-- Add real-time charts and analytics
-- Implement mobile notifications
-- Create trade performance dashboard
-- Add strategy customization interface
+## Usage 🛠️
 
-### 5. Risk Management
-- Implement better drawdown protection
-- Add portfolio-level risk management
-- Develop dynamic risk adjustment based on market conditions
-- Improve position exit strategies
-- Add volatility-based position sizing
+1. Set up your environment:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 6. Infrastructure
-- Add comprehensive logging and monitoring
-- Improve error handling and recovery
-- Add automated backups
+2. Configure your trading parameters in `trading_strat_params.py`
 
-### 7. Fix and improve visualizations
-- Fix buy and sell signals visualization
-- Add more visualizations of backtesting results and live trading
-- Add visualizations of model performance and predictions
+3. Run the bot:
+   ```bash
+   python app.py
+   ```
 
-## Disclaimer ⚠️
+4. For backtesting:
+   ```bash
+   python backtesting.py
+   ```
 
-Cryptocurrency trading involves significant risks:
-- Start with small amounts
-- Use proper risk management
-- Monitor the bot regularly
-- Never trade more than you can afford to lose
-- Use at your own risk. The author is not responsible for any losses.
+## Data Storage 📊
+
+The bot now stores historical OHLC data in parquet files:
+- Data is automatically saved in the `data` directory
+- Historical data is merged with new data on each run
+- Efficient storage and fast loading with parquet format
+
+## Performance Tracking 📈
+
+The bot tracks and saves:
+- Trading history
+- Model performance metrics
+- Balance and position updates
+- Risk metrics
+
+Results are saved in:
+- `trading_summary_YYYYMMDD_HHMMSS.txt` for trading sessions
+- Model performance comparisons during backtesting
+
+## Safety Features 🛡️
+
+- Automatic position management
+- Risk limits and stop-losses
+- Unsafe pair tracking
+- API error handling
+- Comprehensive logging
+
+## Requirements 📋
+
+- Python 3.8+
+- Dependencies in `requirements.txt`
+- Kraken API credentials
+- Sufficient balance for trading
 
 ## License 📄
 
-MIT License
+MIT License - See LICENSE file for details
 

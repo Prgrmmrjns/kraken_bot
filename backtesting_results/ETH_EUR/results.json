@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "ETH/EUR",
+    "strategy_params": {
+        "buy_threshold": 3.6708813604426433,
+        "take_profit": 2.6875078819658436,
+        "max_hold_time": 22,
+        "trailing_stop": 1.363066453095513,
+        "min_rsi": 32.15071479985006,
+        "max_rsi": 71.9278101647805,
+        "min_volume_ratio": 1.9137064870898486,
+        "max_volatility": 1.592933219183453,
+        "profit_lock": 1.9008496875952448,
+        "optimization_score": 0.0
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "DOT/EUR",
+    "strategy_params": {
+        "buy_threshold": 4.055676026722076,
+        "take_profit": 3.025275159364757,
+        "max_hold_time": 22,
+        "trailing_stop": 0.7167902508415696,
+        "min_rsi": 35.66039487337747,
+        "max_rsi": 75.95047262549551,
+        "min_volume_ratio": 1.5220078613904606,
+        "max_volatility": 3.5733849320347857,
+        "profit_lock": 1.3971623875944708,
+        "optimization_score": 0.0
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "AVAX/EUR",
+    "strategy_params": {
+        "buy_threshold": 2.089582206170949,
+        "take_profit": 4.073449449555549,
+        "max_hold_time": 10,
+        "trailing_stop": 0.8551015397434816,
+        "min_rsi": 22.205501179031177,
+        "max_rsi": 69.77202086973624,
+        "min_volume_ratio": 1.7489445004699742,
+        "max_volatility": 1.5057680392162842,
+        "profit_lock": 0.8273188881988403,
+        "optimization_score": 0.0
+    }
+}

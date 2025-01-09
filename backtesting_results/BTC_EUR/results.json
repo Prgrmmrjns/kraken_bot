@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "BTC/EUR",
+    "strategy_params": {
+        "buy_threshold": 3.479096382258689,
+        "take_profit": 3.065374346223406,
+        "max_hold_time": 24,
+        "trailing_stop": 0.5463857969564487,
+        "min_rsi": 31.967175896131295,
+        "max_rsi": 65.69675498702561,
+        "min_volume_ratio": 0.908385520849708,
+        "max_volatility": 2.6022998676393967,
+        "profit_lock": 1.4718534395645357,
+        "optimization_score": 0.0
+    }
+}

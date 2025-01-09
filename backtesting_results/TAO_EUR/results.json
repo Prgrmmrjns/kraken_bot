@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "TAO/EUR",
+    "strategy_params": {
+        "buy_threshold": 2.092674309608697,
+        "take_profit": 2.7407497559134644,
+        "max_hold_time": 7,
+        "trailing_stop": 1.3529847418926935,
+        "min_rsi": 38.81009484187334,
+        "max_rsi": 69.83320245989519,
+        "min_volume_ratio": 0.964501794698326,
+        "max_volatility": 3.689696857588347,
+        "profit_lock": 1.8958086580069038,
+        "optimization_score": 0.0
+    }
+}

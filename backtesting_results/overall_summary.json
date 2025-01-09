@@ -1,0 +1,493 @@
+{
+    "initial_balance": 100.0,
+    "final_balance": 100.01433496182887,
+    "total_return": 0.01433496182886529,
+    "pairs": [
+        {
+            "pair": "BTC/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 3.479096382258689,
+                "take_profit": 3.065374346223406,
+                "max_hold_time": 24,
+                "trailing_stop": 0.5463857969564487,
+                "min_rsi": 31.967175896131295,
+                "max_rsi": 65.69675498702561,
+                "min_volume_ratio": 0.908385520849708,
+                "max_volatility": 2.6022998676393967,
+                "profit_lock": 1.4718534395645357,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "ETH/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 3.6708813604426433,
+                "take_profit": 2.6875078819658436,
+                "max_hold_time": 22,
+                "trailing_stop": 1.363066453095513,
+                "min_rsi": 32.15071479985006,
+                "max_rsi": 71.9278101647805,
+                "min_volume_ratio": 1.9137064870898486,
+                "max_volatility": 1.592933219183453,
+                "profit_lock": 1.9008496875952448,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "XRP/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 2.6687283682073932,
+                "take_profit": 3.566394790074894,
+                "max_hold_time": 4,
+                "trailing_stop": 1.5561833903471503,
+                "min_rsi": 22.684521223799962,
+                "max_rsi": 66.11076112072843,
+                "min_volume_ratio": 1.0017722714055537,
+                "max_volatility": 2.170563746446515,
+                "profit_lock": 1.0589133231943644,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "SOL/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 2.1186979574169147,
+                "take_profit": 2.2942609702801855,
+                "max_hold_time": 18,
+                "trailing_stop": 1.3365099486067713,
+                "min_rsi": 32.794285578991435,
+                "max_rsi": 77.45525007292842,
+                "min_volume_ratio": 1.7655788652916415,
+                "max_volatility": 3.9092204236608454,
+                "profit_lock": 1.5939202176526912,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "MATIC/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "TURBO/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "KAS/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "DOT/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 4.055676026722076,
+                "take_profit": 3.025275159364757,
+                "max_hold_time": 22,
+                "trailing_stop": 0.7167902508415696,
+                "min_rsi": 35.66039487337747,
+                "max_rsi": 75.95047262549551,
+                "min_volume_ratio": 1.5220078613904606,
+                "max_volatility": 3.5733849320347857,
+                "profit_lock": 1.3971623875944708,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "AVAX/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 2.089582206170949,
+                "take_profit": 4.073449449555549,
+                "max_hold_time": 10,
+                "trailing_stop": 0.8551015397434816,
+                "min_rsi": 22.205501179031177,
+                "max_rsi": 69.77202086973624,
+                "min_volume_ratio": 1.7489445004699742,
+                "max_volatility": 1.5057680392162842,
+                "profit_lock": 0.8273188881988403,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "SHIB/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "PEPE/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "GALA/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "KEY/EUR",
+            "return": 0.38704396937887964,
+            "n_trades": 10,
+            "win_rate": 70.0,
+            "strategy_params": {
+                "buy_threshold": 2.3986970698386267,
+                "take_profit": 4.205805007388749,
+                "max_hold_time": 17,
+                "trailing_stop": 1.624470348825752,
+                "min_rsi": 25.92657702617285,
+                "max_rsi": 65.85112851266683,
+                "min_volume_ratio": 1.5999754458051498,
+                "max_volatility": 2.5449566037901805,
+                "profit_lock": 0.7233589945536544,
+                "optimization_score": 1.3638774660375965
+            }
+        },
+        {
+            "pair": "SUI/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 4.988284139499997,
+                "take_profit": 4.656126928627194,
+                "max_hold_time": 18,
+                "trailing_stop": 1.6887102438826496,
+                "min_rsi": 39.62268695404673,
+                "max_rsi": 73.26645903475492,
+                "min_volume_ratio": 1.9053637497440532,
+                "max_volatility": 1.838553617196565,
+                "profit_lock": 1.8587401990975858,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "LINK/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 4.843878895163456,
+                "take_profit": 2.569134649149425,
+                "max_hold_time": 19,
+                "trailing_stop": 1.1125549902670178,
+                "min_rsi": 22.58453903399767,
+                "max_rsi": 70.44021893531978,
+                "min_volume_ratio": 1.299782173065959,
+                "max_volatility": 1.3875771131073669,
+                "profit_lock": 1.757419201687097,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "ICP/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 3.5079511838250146,
+                "take_profit": 2.791404808717016,
+                "max_hold_time": 9,
+                "trailing_stop": 1.4320769206131865,
+                "min_rsi": 33.90378115765804,
+                "max_rsi": 63.33814003127426,
+                "min_volume_ratio": 1.4998612719577604,
+                "max_volatility": 2.4506279327802125,
+                "profit_lock": 1.23260831762762,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "RENDER/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 2.9404573165752255,
+                "take_profit": 3.286078778506094,
+                "max_hold_time": 6,
+                "trailing_stop": 1.3309633965760184,
+                "min_rsi": 26.16144154022174,
+                "max_rsi": 62.891462897752334,
+                "min_volume_ratio": 1.7383456482049826,
+                "max_volatility": 2.081587580005567,
+                "profit_lock": 1.7674905257055145,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "TAO/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 2.092674309608697,
+                "take_profit": 2.7407497559134644,
+                "max_hold_time": 7,
+                "trailing_stop": 1.3529847418926935,
+                "min_rsi": 38.81009484187334,
+                "max_rsi": 69.83320245989519,
+                "min_volume_ratio": 0.964501794698326,
+                "max_volatility": 3.689696857588347,
+                "profit_lock": 1.8958086580069038,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "ARB/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "ENA/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "DAI/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 4.024771852801981,
+                "take_profit": 4.555527712352827,
+                "max_hold_time": 7,
+                "trailing_stop": 1.7305469409784175,
+                "min_rsi": 33.879173277003616,
+                "max_rsi": 72.95416597970367,
+                "min_volume_ratio": 1.5654098559010257,
+                "max_volatility": 1.539602547960719,
+                "profit_lock": 1.7458204301269957,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "ALGO/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "TIA/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 3.783794477939686,
+                "take_profit": 1.9073872514265446,
+                "max_hold_time": 19,
+                "trailing_stop": 1.6027307637223212,
+                "min_rsi": 39.455069678125646,
+                "max_rsi": 68.6393534908754,
+                "min_volume_ratio": 1.069216073121271,
+                "max_volatility": 3.331513409402633,
+                "profit_lock": 1.6158008314463665,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "SAFE/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 2.419584996305961,
+                "take_profit": 2.6388951413380783,
+                "max_hold_time": 11,
+                "trailing_stop": 1.8924114413286608,
+                "min_rsi": 33.434774836005765,
+                "max_rsi": 69.18806347571717,
+                "min_volume_ratio": 1.5776879575614002,
+                "max_volatility": 2.1350263614354894,
+                "profit_lock": 1.5162559069640666,
+                "optimization_score": 0.0
+            }
+        },
+        {
+            "pair": "L3/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "MNGO/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        },
+        {
+            "pair": "SC/EUR",
+            "return": 0.0,
+            "n_trades": 0,
+            "win_rate": 0,
+            "strategy_params": {
+                "buy_threshold": 999.0,
+                "take_profit": 1.0,
+                "max_hold_time": 4,
+                "trailing_stop": 1.0,
+                "min_rsi": 50,
+                "max_rsi": 50,
+                "min_volume_ratio": 999.0,
+                "max_volatility": 0.0,
+                "profit_lock": 1.0,
+                "optimization_score": 0
+            }
+        }
+    ]
+}

@@ -5,10 +5,15 @@ import base64
 import hmac
 import hashlib
 import urllib.parse
+import urllib.request
 import requests
 import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+import joblib
+from params import TRADING_CONFIG, MODEL_CONFIG
+from model_functions import create_features, train_model
 
 # Load environment variables
 load_dotenv()
@@ -103,6 +108,37 @@ def get_ticker(pair):
 def execute_order(pair, euro_amount, order_type, skip_confirm=False):
     """Execute a trade order."""
     try:
+        # Check if we're in test mode
+        if TRADING_CONFIG['behavior']['test_run']:
+            print(f"TEST RUN: Would {order_type} {euro_amount:.2f}€ of {pair}")
+            
+            # Get current price
+            df = download_recent_ohlc(pair=pair)
+            if df is None or df.empty:
+                print(f"Could not get current price for {pair}")
+                return False
+                
+            current_price = float(df['close'].iloc[-1])
+            volume = euro_amount / current_price
+            
+            # Handle test mode position tracking
+            if order_type.upper() == "BUY":
+                test_positions.append({
+                    'pair': pair,
+                    'type': 'buy',
+                    'volume': volume,
+                    'price': current_price,
+                    'pnl': 0.0
+                })
+            else:  # SELL
+                # Find and remove the position
+                for i, pos in enumerate(test_positions):
+                    if pos['pair'] == pair:
+                        test_positions.pop(i)
+                        break
+            
+            return True
+            
         # Get current price to calculate volume
         df = download_recent_ohlc(pair=pair)
         if df is None or df.empty:
@@ -164,8 +200,8 @@ class Position:
         self.current_return = (current_price - self.entry_price) / self.entry_price * 100
         return self.current_return
 
-# Keep track of all positions
-open_positions = []
+# Keep track of all positions (for test mode)
+test_positions = []
 
 def get_current_price(pair):
     """Fetch current market price for the specified trading pair."""
@@ -200,6 +236,11 @@ def place_market_order(pair, euro_amount, order_type):
     """
     Place a market order on Kraken spending the specified amount in EUR to buy/sell the base currency.
     """
+    # Check if we're in test mode
+    if TRADING_CONFIG['behavior']['test_run']:
+        print(f"TEST RUN: Would place {order_type} market order for {euro_amount:.2f}€ of {pair}")
+        return execute_order(pair, euro_amount, order_type, skip_confirm=True)
+    
     # Get the current price of the base currency in EUR
     price = get_current_price(pair)
     if price is None:
@@ -245,7 +286,7 @@ def place_market_order(pair, euro_amount, order_type):
         if 'result' in response_data and 'txid' in response_data['result']:
             return response_data
         else:
-            print(f"Unexpected API response: {response_data}")
+            print(f"Error placing order: {response_data.get('error', 'Unknown error')}")
             return None
             
     except Exception as e:
@@ -255,6 +296,10 @@ def place_market_order(pair, euro_amount, order_type):
 def get_open_positions():
     """Get currently open positions from Kraken."""
     try:
+        # If in test mode, return test positions
+        if TRADING_CONFIG['behavior']['test_run']:
+            return test_positions
+            
         # Get private data about positions
         url_path = "/0/private/OpenPositions"
         nonce = str(int(time.time() * 1000))
@@ -305,9 +350,17 @@ def get_open_positions():
         return []
 
 def download_full_ohlc_data(pair, interval=15):
-    """Download historical OHLC data for given trading pair and interval."""
+    """Download full OHLC data for a trading pair."""
     url = 'https://api.kraken.com/0/public/OHLC'
-    params = {'pair': pair, 'interval': interval}
+    
+    # Calculate since time (last 30 days)
+    since = int(time.time() - 30 * 24 * 60 * 60)
+    
+    params = {
+        'pair': pair,
+        'interval': interval,
+        'since': since
+    }
     
     try:
         response = requests.get(url, params=params)
@@ -327,13 +380,25 @@ def download_full_ohlc_data(pair, interval=15):
             columns=['timestamp', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
         )
         
+        # Convert types
+        df = df.astype({
+            'timestamp': 'int64',
+            'open': 'float64',
+            'high': 'float64',
+            'low': 'float64',
+            'close': 'float64',
+            'vwap': 'float64',
+            'volume': 'float64',
+            'count': 'int64'
+        })
+        
+        # Convert timestamp to datetime
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
-        df = df.astype({col: float for col in df.columns if col != 'timestamp'})
         
         return df
         
     except Exception as e:
-        print(f"Error downloading OHLC data: {str(e)}")
+        print(f"Error downloading OHLC data for {pair}: {str(e)}")
         return None
 
 def check_and_manage_positions():
@@ -348,8 +413,15 @@ def check_and_manage_positions():
             
         for position in positions:
             current_price = get_current_price(position['pair'])
+            if current_price is None:
+                continue
+                
             entry_price = float(position['price'])
             current_return = (current_price - entry_price) / entry_price * 100
+            
+            # Update PnL for test positions
+            if TRADING_CONFIG['behavior']['test_run']:
+                position['pnl'] = position['volume'] * current_price * (current_return / 100)
             
             # Check take profit condition
             if current_return >= TRADING_CONFIG['position']['take_profit']:
@@ -365,27 +437,26 @@ def check_and_manage_positions():
         print(f"Error managing positions: {str(e)}")
         return closed_positions  # Return empty list on error
 
-def print_trading_status(opportunities):
-    """Print current trading status and position information"""
-    print(f"\n{'='*50}")
-    print("MARKET STATUS")
-    print(f"{'='*50}")
+def print_trading_status(opportunities, start_time=None):
+    """Print current trading status with emoji indicators."""
+    print("\n" + "="*50)
+    print("🤖 TRADING STATUS")
+    print("="*50)
     
+    if not opportunities:
+        print("No trading opportunities found")
+        return
+    
+    print("\n📊 Trading Opportunities:")
     for opp in opportunities:
-        print(f"\n{opp['display_name']}:")
-        print(f"Current Price: €{opp['current_price']:.5f}")
-        print(f"Predicted Return: {opp['predicted_return']:+.2f}%")
+        predicted_return = opp.get('predicted_return', 0)
+        signal_strength = "🟢" if predicted_return > 2 else "🟡" if predicted_return > 1 else "🔴"
+        print(f"{signal_strength} {opp['display_name']}: {predicted_return:+.2f}% predicted return")
     
-    print(f"\nOpen Positions: {len(open_positions)}")
-    for i, pos in enumerate(open_positions, 1):
-        if current_price := get_current_price(pos.pair):
-            print(f"\nPosition {i}:")
-            print(f"Pair: {pos.pair}")
-            print(f"Entry Price: €{pos.entry_price:.5f}")
-            print(f"Current Price: €{current_price:.5f}")
-            print(f"Size: €{pos.size:.2f}")
-            print(f"Current Return: {pos.update_return(current_price):+.2f}%")
-            print(f"Age: {(datetime.now() - pos.timestamp).seconds // 60} minutes")
+    if start_time:
+        elapsed_hours = (datetime.now() - start_time).total_seconds() / 3600
+        remaining_hours = max(0, TRADING_CONFIG['behavior']['duration_hours'] - elapsed_hours)
+        print(f"\n⏱️ Remaining Time: {remaining_hours:.1f} hours")
 
 def train_and_save_model(trading_pairs):
     """Train and save separate models for each trading pair"""
@@ -393,6 +464,10 @@ def train_and_save_model(trading_pairs):
     pair_data = {}
     skipped_pairs = []
     models = {}
+    
+    # Create necessary directories
+    os.makedirs('models', exist_ok=True)
+    os.makedirs('backtesting_results', exist_ok=True)
     
     for pair, display_name in trading_pairs:
         try:
@@ -417,30 +492,92 @@ def train_and_save_model(trading_pairs):
     pair_features = create_features(pair_data)
     
     for pair, df in pair_features.items():
-        print(f"\nTraining model for {pair}...")
-        df = df.dropna(subset=['target'])
-        
-        X = df.drop(columns=['timestamp', 'target'])
-        y = df['target']
-        
-        # Split data into train and validation
-        val_split_idx = int(len(df) * 0.8)
-        X_train, X_val = X[:val_split_idx], X[val_split_idx:]
-        y_train, y_val = y[:val_split_idx], y[val_split_idx:]
-        
-        # Train model for this pair
-        models[pair] = train_model(X_train, X_val, y_train, y_val)
-        
-        # Save pair-specific model
-        joblib.dump(models[pair], f'model_{pair}.joblib')
+        try:
+            print(f"\nTraining model for {pair}...")
+            df = df.dropna(subset=['target'])
+            
+            if df.empty:
+                print(f"No valid data for {pair}")
+                continue
+            
+            # Keep only numeric columns
+            numeric_cols = df.select_dtypes(include=[np.number]).columns
+            df = df[numeric_cols]
+            
+            # Drop any remaining non-feature columns
+            drop_cols = ['close', 'volume', 'target', 'timestamp'] if 'timestamp' in df.columns else ['close', 'volume', 'target']
+            feature_cols = [col for col in df.columns if col not in drop_cols]
+            
+            X = df[feature_cols]
+            y = df['target']
+            
+            # Split data into train and validation
+            val_split_idx = int(len(df) * 0.8)
+            X_train, X_val = X[:val_split_idx], X[val_split_idx:]
+            y_train, y_val = y[:val_split_idx], y[val_split_idx:]
+            
+            # Train model for this pair
+            model = train_model(X_train, X_val, y_train, y_val)
+            models[pair] = model
+            
+            # Save pair-specific model
+            model_file = f'models/model_{pair}.joblib'
+            joblib.dump(model, model_file)
+            
+        except Exception as e:
+            print(f"Error training model for {pair}: {str(e)}")
+            continue
     
     return models
 
 def get_account_balance():
     """Get the current account balance."""
     try:
-        # For now, return the initial balance from config
-        return TRADING_CONFIG['risk_management']['total_balance']
+        # If in test mode, return the configured balance
+        if TRADING_CONFIG['behavior']['test_run']:
+            return TRADING_CONFIG['risk_management']['total_balance']
+            
+        # Get private data about account balance
+        url_path = "/0/private/Balance"
+        nonce = str(int(time.time() * 1000))
+        
+        data = {
+            "nonce": nonce,
+        }
+        
+        message = data["nonce"] + urllib.parse.urlencode(data)
+        sha256_hash = hashlib.sha256(message.encode()).digest()
+        hmac_digest = hmac.new(
+            base64.b64decode(TRADING_CONFIG['api']['secret']),
+            url_path.encode() + sha256_hash,
+            hashlib.sha512
+        ).digest()
+        
+        headers = {
+            "API-Key": TRADING_CONFIG['api']['key'],
+            "API-Sign": base64.b64encode(hmac_digest).decode()
+        }
+        
+        response = requests.post(
+            "https://api.kraken.com" + url_path,
+            data=data,
+            headers=headers
+        )
+        response.raise_for_status()
+        result = response.json()
+        
+        if 'error' in result and result['error']:
+            print(f"API Error: {result['error']}")
+            return 0.0
+            
+        # Sum up all EUR balances
+        total_balance = 0.0
+        for currency, amount in result.get('result', {}).items():
+            if currency.endswith('EUR'):
+                total_balance += float(amount)
+        
+        return total_balance
+        
     except Exception as e:
         print(f"Error getting account balance: {str(e)}")
         return 0.0
@@ -468,3 +605,46 @@ def get_ticker_info(pair):
     except Exception as e:
         print(f"Error getting ticker info: {str(e)}")
         return None
+
+def initialize_trading(trading_pairs):
+    """Initialize trading parameters and models."""
+    pair_params = {}
+    models = {}
+    
+    # Create necessary directories
+    os.makedirs('models', exist_ok=True)
+    os.makedirs('backtesting_results', exist_ok=True)
+    
+    for pair, display_name in trading_pairs:
+        # Load model if exists
+        model_file = f'models/model_{pair}.joblib'
+        if os.path.exists(model_file):
+            models[pair] = joblib.load(model_file)
+            
+        # Load trading parameters if exists
+        params_file = f'backtesting_results/{display_name.replace("/", "_")}/trading_params.json'
+        if os.path.exists(params_file):
+            with open(params_file, 'r') as f:
+                pair_params[pair] = json.load(f)
+    
+    return pair_params, models
+
+def handle_trading_opportunity(opportunity, position_size, auto_confirm=None):
+    """Handle a trading opportunity."""
+    if not opportunity or position_size < 10.0:  # Minimum trade amount
+        return False, 0.0
+        
+    # Use the config setting if auto_confirm is not explicitly provided
+    should_confirm = TRADING_CONFIG['behavior']['confirm_order'] if auto_confirm is None else auto_confirm
+    
+    # In test mode, we don't need user confirmation
+    if TRADING_CONFIG['behavior']['test_run']:
+        should_confirm = False
+    
+    # Execute the trade
+    if execute_order(opportunity['pair'], position_size, "BUY", skip_confirm=not should_confirm):
+        action = "Simulated buy" if TRADING_CONFIG['behavior']['test_run'] else "Buy"
+        print(f"✅ {action} order executed for {opportunity['display_name']}")
+        return True, position_size
+    
+    return False, 0.0

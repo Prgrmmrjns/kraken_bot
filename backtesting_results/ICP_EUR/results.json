@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "ICP/EUR",
+    "strategy_params": {
+        "buy_threshold": 3.5079511838250146,
+        "take_profit": 2.791404808717016,
+        "max_hold_time": 9,
+        "trailing_stop": 1.4320769206131865,
+        "min_rsi": 33.90378115765804,
+        "max_rsi": 63.33814003127426,
+        "min_volume_ratio": 1.4998612719577604,
+        "max_volatility": 2.4506279327802125,
+        "profit_lock": 1.23260831762762,
+        "optimization_score": 0.0
+    }
+}

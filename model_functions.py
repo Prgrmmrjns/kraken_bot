@@ -6,59 +6,106 @@ import optuna
 import joblib
 import json
 from datetime import datetime
-from trading_strat_params import MODEL_CONFIG, TRADING_CONFIG, TRADING_PAIRS
+from params import MODEL_CONFIG, TRADING_CONFIG, TRADING_PAIRS
 import os
+import ta
 
 # Set Optuna's logging level to WARNING
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-def create_features_for_pair(df, pair_name, target_shift=4, target_window=4):
-    """Create essential technical indicators as features."""
-    df = df.copy()
+def create_features_for_pair(df, pair_name):
+    """Create features for a single pair using ta package."""
+    if df is None or df.empty:
+        return None
+        
+    # Create a copy to avoid modifying original data
+    data = df.copy()
     
-    # Convert timestamp to datetime if not already
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    
-    # Price changes (1 and 5 periods)
-    df['price_change_1'] = df['close'].pct_change(1, fill_method=None) * 100
-    df['price_change_5'] = df['close'].pct_change(5, fill_method=None) * 100
-    
-    # Volume features
-    df['volume_ratio'] = df['volume'] / df['volume'].rolling(window=5).mean()
-    
-    # Moving averages (5 and 20 periods)
-    df['sma_5'] = df['close'].rolling(window=5).mean()
-    df['sma_20'] = df['close'].rolling(window=20).mean()
-    df['sma_dist_5'] = (df['close'] - df['sma_5']) / df['sma_5'] * 100
-    df['sma_dist_20'] = (df['close'] - df['sma_20']) / df['sma_20'] * 100
-    
-    # Volatility
-    df['volatility'] = df['close'].pct_change(fill_method=None).rolling(window=5).std() * 100
-    
-    # RSI
-    delta = df['close'].diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-    rs = gain / loss
-    df['rsi'] = 100 - (100 / (1 + rs))
-    
-    # Target with dynamic shift and window
-    df['target'] = df['close'].shift(-target_shift).pct_change(target_window, fill_method=None) * 100
-    
-    # Clean up NaN values
-    df = df.dropna()
-    
-    return df
+    try:
+        # Add technical indicators
+        data = add_technical_indicators(data)
+        
+        # Target: Maximum price increase in next X periods
+        target_periods = MODEL_CONFIG['prediction_window']
+        data['target'] = data['close'].rolling(target_periods).max().shift(-target_periods)
+        data['target'] = (data['target'] - data['close']) / data['close'] * 100
+        
+        # Drop unnecessary columns and NaN values
+        data = data.dropna()
+        
+        return data
+        
+    except Exception as e:
+        print(f"Error creating features for {pair_name}: {str(e)}")
+        return None
 
-def create_features(data_dict, prediction_horizon=8):
-    """Create features for each pair separately."""
+def create_features(pair_data):
+    """Create features for all pairs using ta package."""
     pair_features = {}
     
-    for pair, df in data_dict.items():
-        pair_data = create_features_for_pair(df, pair, prediction_horizon)
-        pair_features[pair] = pair_data
+    for pair, df in pair_data.items():
+        if df is None or df.empty:
+            continue
+            
+        # Create a copy to avoid modifying original data
+        data = df.copy()
+        
+        # Add technical indicators
+        data = add_technical_indicators(data)
+        
+        # Target: Maximum price increase in next X periods
+        target_periods = MODEL_CONFIG['prediction_window']
+        data['target'] = data['close'].rolling(target_periods).max().shift(-target_periods)
+        data['target'] = (data['target'] - data['close']) / data['close'] * 100
+        
+        # Drop rows with NaN values
+        data = data.dropna()
+        
+        # Store features
+        pair_features[pair] = data
     
     return pair_features
+
+def add_technical_indicators(data):
+    """Add technical indicators to dataframe."""
+    # Volume indicators
+    data['volume_ema'] = ta.volume.volume_weighted_average_price(data['high'], data['low'], data['close'], data['volume'])
+    data['volume_fi'] = ta.volume.force_index(data['close'], data['volume'])
+    data['volume_em'] = ta.volume.ease_of_movement(data['high'], data['low'], data['volume'])
+    data['volume_vwap'] = ta.volume.volume_weighted_average_price(data['high'], data['low'], data['close'], data['volume'])
+    
+    # Trend indicators
+    data['trend_sma_fast'] = ta.trend.sma_indicator(data['close'], window=10)
+    data['trend_sma_slow'] = ta.trend.sma_indicator(data['close'], window=30)
+    data['trend_ema_fast'] = ta.trend.ema_indicator(data['close'], window=10)
+    data['trend_ema_slow'] = ta.trend.ema_indicator(data['close'], window=30)
+    data['trend_adx'] = ta.trend.adx(data['high'], data['low'], data['close'])
+    data['trend_macd'] = ta.trend.macd_diff(data['close'])
+    data['trend_vortex_pos'] = ta.trend.vortex_indicator_pos(data['high'], data['low'], data['close'])
+    data['trend_vortex_neg'] = ta.trend.vortex_indicator_neg(data['high'], data['low'], data['close'])
+    
+    # Momentum indicators
+    data['momentum_rsi'] = ta.momentum.rsi(data['close'])
+    data['momentum_stoch'] = ta.momentum.stoch(data['high'], data['low'], data['close'])
+    data['momentum_stoch_signal'] = ta.momentum.stoch_signal(data['high'], data['low'], data['close'])
+    data['momentum_tsi'] = ta.momentum.tsi(data['close'])
+    data['momentum_uo'] = ta.momentum.ultimate_oscillator(data['high'], data['low'], data['close'])
+    data['momentum_stoch_rsi'] = ta.momentum.stochrsi(data['close'])
+    
+    # Volatility indicators
+    data['volatility_bbm'] = ta.volatility.bollinger_mavg(data['close'])
+    data['volatility_bbh'] = ta.volatility.bollinger_hband(data['close'])
+    data['volatility_bbl'] = ta.volatility.bollinger_lband(data['close'])
+    data['volatility_bbw'] = ta.volatility.bollinger_wband(data['close'])
+    data['volatility_atr'] = ta.volatility.average_true_range(data['high'], data['low'], data['close'])
+    data['volatility_ui'] = ta.volatility.ulcer_index(data['close'])
+    
+    # Price-based features
+    data['price_change'] = data['close'].pct_change()
+    data['price_range'] = (data['high'] - data['low']) / data['close']
+    data['price_cumret'] = (1 + data['price_change']).rolling(window=12).apply(np.prod) - 1
+    
+    return data
 
 def train_model(X_train, X_val, y_train, y_val, quick_mode=False):
     """Train a LightGBM regression model."""
@@ -69,42 +116,18 @@ def train_model(X_train, X_val, y_train, y_val, quick_mode=False):
             'objective': 'regression',
             'random_state': MODEL_CONFIG['random_state'],
             'verbosity': -1,
-            **MODEL_CONFIG['fast_params']  # Use default fast parameters
+            **MODEL_CONFIG['fast_params']
         }
         final_model = LGBMRegressor(**params)
-        final_model.fit(X_train, y_train)
-        
-        # Calculate metrics
-        val_pred = final_model.predict(X_val)
-        mse = mean_squared_error(y_val, val_pred)
-        rmse = np.sqrt(mse)
-        
-        metrics = {
-            'val_mse': float(mse),
-            'val_rmse': float(rmse),
-            'feature_importance': {
-                str(col): float(imp) 
-                for col, imp in zip(X_train.columns, final_model.feature_importances_)
-            }
-        }
-
-        model_info = {
-            'training_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'parameters': {k: float(v) if isinstance(v, np.float64) else v for k, v in params.items()},
-            'metrics': metrics,
-            'data_info': {
-                'train_samples': int(len(X_train)),
-                'val_samples': int(len(X_val)),
-                'features': list(X_train.columns)
-            }
-        }
-
-        with open('model_info.txt', 'w') as f:
-            json.dump(model_info, f, indent=4)
+        final_model.fit(
+            X_train, y_train,
+            eval_set=[(X_val, y_val)],
+            eval_metric='rmse'
+        )
 
         return final_model
 
-    # If not fast training, do hyperparameter optimization
+    print("Running hyperparameter optimization...")
     def objective(trial):
         params = {
             'objective': 'regression',
@@ -121,14 +144,21 @@ def train_model(X_train, X_val, y_train, y_val, quick_mode=False):
         }
         
         model = LGBMRegressor(**params)
-        model.fit(X_train, y_train)
+        model.fit(
+            X_train, y_train,
+            eval_set=[(X_val, y_val)],
+            eval_metric='rmse'
+        )
         
-        # Use mean squared error as metric
         val_pred = model.predict(X_val)
         return mean_squared_error(y_val, val_pred)
 
     study = optuna.create_study(direction='minimize')
     study.optimize(objective, n_trials=MODEL_CONFIG['n_trials'], show_progress_bar=False)
+
+    print("\nBest hyperparameters found:")
+    for key, value in study.best_params.items():
+        print(f"- {key}: {value}")
 
     # Train final model with best parameters
     best_params = study.best_params
@@ -139,36 +169,19 @@ def train_model(X_train, X_val, y_train, y_val, quick_mode=False):
     })
     
     final_model = LGBMRegressor(**best_params)
-    final_model.fit(X_train, y_train)
+    final_model.fit(
+        X_train, y_train,
+        eval_set=[(X_val, y_val)],
+        eval_metric='rmse'
+    )
     
-    # Save model info
+    # Calculate final metrics
+    train_pred = final_model.predict(X_train)
     val_pred = final_model.predict(X_val)
-    mse = mean_squared_error(y_val, val_pred)
-    rmse = np.sqrt(mse)
     
-    metrics = {
-        'val_mse': float(mse),
-        'val_rmse': float(rmse),
-        'feature_importance': {
-            str(col): float(imp) 
-            for col, imp in zip(X_train.columns, final_model.feature_importances_)
-        }
-    }
-
-    model_info = {
-        'training_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'parameters': {k: float(v) if isinstance(v, np.float64) else v for k, v in best_params.items()},
-        'metrics': metrics,
-        'data_info': {
-            'train_samples': int(len(X_train)),
-            'val_samples': int(len(X_val)),
-            'features': list(X_train.columns)
-        }
-    }
-
-    with open('model_info.txt', 'w') as f:
-        json.dump(model_info, f, indent=4)
-
+    train_rmse = np.sqrt(mean_squared_error(y_train, train_pred))
+    val_rmse = np.sqrt(mean_squared_error(y_val, val_pred))
+    
     return final_model
 
 def optimize_trading_strategy(df, model, initial_balance=1000.0, n_trials=10):
@@ -365,38 +378,48 @@ def simulate_trading(
     
     return results
 
-def get_model_features(model_file):
-    """Get the list of features used by the model."""
-    try:
-        model = joblib.load(model_file)
-        if hasattr(model, 'feature_names_in_'):
-            return list(model.feature_names_in_)
-        return None
-    except Exception as e:
-        print(f"Error getting model features: {str(e)}")
-        return None
-
-def prepare_features(features_df, expected_features):
+def prepare_features(features_df, expected_features=None):
     """Prepare features to match model's expectations."""
-    if expected_features is None:
-        return features_df
-    
     try:
-        # Drop target column if present
-        if 'target' in features_df.columns:
-            features_df = features_df.drop(columns=['target'])
+        # Create a copy to avoid modifying original
+        df = features_df.copy()
+        
+        # Drop non-feature columns if they exist
+        drop_cols = ['timestamp', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count', 'target']
+        for col in drop_cols:
+            if col in df.columns:
+                df = df.drop(columns=[col])
+        
+        # If no expected features provided, return all numeric features
+        if expected_features is None:
+            return df.select_dtypes(include=[np.number])
         
         # Check if all expected features are present
-        missing_features = set(expected_features) - set(features_df.columns)
+        missing_features = set(expected_features) - set(df.columns)
         if missing_features:
             print(f"Missing features: {missing_features}")
             return None
         
-        # Select and order features to match model's expectations
-        return features_df[expected_features]
+        # Return only the expected features in the correct order
+        return df[expected_features]
         
     except Exception as e:
         print(f"Error preparing features: {str(e)}")
+        return None
+
+def get_model_features(model_file):
+    """Get the list of features used by the model."""
+    try:
+        model = joblib.load(model_file)
+        # For LightGBM models, feature names are stored in feature_name_
+        if hasattr(model, 'feature_name_'):
+            return model.feature_name_
+        # For scikit-learn models, try feature_names_in_
+        elif hasattr(model, 'feature_names_in_'):
+            return list(model.feature_names_in_)
+        return None
+    except Exception as e:
+        print(f"Error getting model features: {str(e)}")
         return None
 
 def evaluate_trading_opportunities(trading_pairs, models, pair_params):
@@ -504,7 +527,6 @@ def load_trading_params(pair):
             return data['strategy_params']
         
     except Exception as e:
-        print(f"⚠️ Using default parameters for {pair}")
         return {
             'buy_threshold': 1.5,
             'take_profit': 2.0,
@@ -530,10 +552,14 @@ def handle_trading_opportunity(opportunity, position_size, auto_confirm=None):
     """Handle a trading opportunity."""
     if opportunity and position_size >= 10.0:
         # Use the config setting if auto_confirm is not explicitly provided
-        should_confirm = False if auto_confirm is None else not auto_confirm
-        should_confirm = should_confirm and TRADING_CONFIG['behavior']['confirm_order']
+        should_confirm = TRADING_CONFIG['behavior']['confirm_order'] if auto_confirm is None else auto_confirm
+        
+        # In test mode, we don't need user confirmation
+        if TRADING_CONFIG['behavior']['test_run']:
+            should_confirm = False
         
         if execute_order(opportunity['pair'], position_size, "BUY", skip_confirm=not should_confirm):
-            print(f"Buy order executed for {opportunity['display_name']}")
+            action = "Simulated buy" if TRADING_CONFIG['behavior']['test_run'] else "Buy"
+            print(f"✅ {action} order executed for {opportunity['display_name']}")
             return True, position_size
     return False, 0.0

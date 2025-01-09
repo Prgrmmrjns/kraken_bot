@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "SOL/EUR",
+    "strategy_params": {
+        "buy_threshold": 2.1186979574169147,
+        "take_profit": 2.2942609702801855,
+        "max_hold_time": 18,
+        "trailing_stop": 1.3365099486067713,
+        "min_rsi": 32.794285578991435,
+        "max_rsi": 77.45525007292842,
+        "min_volume_ratio": 1.7655788652916415,
+        "max_volatility": 3.9092204236608454,
+        "profit_lock": 1.5939202176526912,
+        "optimization_score": 0.0
+    }
+}

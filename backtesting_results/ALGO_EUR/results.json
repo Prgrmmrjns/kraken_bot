@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "ALGO/EUR",
+    "strategy_params": {
+        "buy_threshold": 999.0,
+        "take_profit": 1.0,
+        "max_hold_time": 4,
+        "trailing_stop": 1.0,
+        "min_rsi": 50,
+        "max_rsi": 50,
+        "min_volume_ratio": 999.0,
+        "max_volatility": 0.0,
+        "profit_lock": 1.0,
+        "optimization_score": 0
+    }
+}

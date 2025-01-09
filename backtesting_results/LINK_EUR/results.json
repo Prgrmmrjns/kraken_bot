@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "LINK/EUR",
+    "strategy_params": {
+        "buy_threshold": 4.843878895163456,
+        "take_profit": 2.569134649149425,
+        "max_hold_time": 19,
+        "trailing_stop": 1.1125549902670178,
+        "min_rsi": 22.58453903399767,
+        "max_rsi": 70.44021893531978,
+        "min_volume_ratio": 1.299782173065959,
+        "max_volatility": 1.3875771131073669,
+        "profit_lock": 1.757419201687097,
+        "optimization_score": 0.0
+    }
+}

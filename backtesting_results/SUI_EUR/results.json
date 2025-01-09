@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "SUI/EUR",
+    "strategy_params": {
+        "buy_threshold": 4.988284139499997,
+        "take_profit": 4.656126928627194,
+        "max_hold_time": 18,
+        "trailing_stop": 1.6887102438826496,
+        "min_rsi": 39.62268695404673,
+        "max_rsi": 73.26645903475492,
+        "min_volume_ratio": 1.9053637497440532,
+        "max_volatility": 1.838553617196565,
+        "profit_lock": 1.8587401990975858,
+        "optimization_score": 0.0
+    }
+}

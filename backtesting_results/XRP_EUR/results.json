@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "XRP/EUR",
+    "strategy_params": {
+        "buy_threshold": 2.6687283682073932,
+        "take_profit": 3.566394790074894,
+        "max_hold_time": 4,
+        "trailing_stop": 1.5561833903471503,
+        "min_rsi": 22.684521223799962,
+        "max_rsi": 66.11076112072843,
+        "min_volume_ratio": 1.0017722714055537,
+        "max_volatility": 2.170563746446515,
+        "profit_lock": 1.0589133231943644,
+        "optimization_score": 0.0
+    }
+}

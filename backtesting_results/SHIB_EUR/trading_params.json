@@ -1,0 +1,12 @@
+{
+    "buy_threshold": 4.98573786882261,
+    "take_profit": 3.2531390910396993,
+    "max_hold_time": 23,
+    "trailing_stop": 1.9057158134311774,
+    "min_rsi": 28.080784392408592,
+    "max_rsi": 60.20841950596922,
+    "min_volume_ratio": 1.9829274250892086,
+    "max_volatility": 1.1421643984122765,
+    "profit_lock": 1.523102321839699,
+    "optimization_score": 6.589317315161722
+}

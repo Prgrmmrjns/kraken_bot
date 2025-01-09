@@ -1,0 +1,24 @@
+{
+    "trades": [],
+    "metrics": {
+        "final_balance": 100.0,
+        "total_return": 0.0,
+        "n_trades": 0,
+        "win_rate": 0,
+        "avg_return": 0,
+        "total_fees": 0
+    },
+    "pair_name": "RENDER/EUR",
+    "strategy_params": {
+        "buy_threshold": 2.9404573165752255,
+        "take_profit": 3.286078778506094,
+        "max_hold_time": 6,
+        "trailing_stop": 1.3309633965760184,
+        "min_rsi": 26.16144154022174,
+        "max_rsi": 62.891462897752334,
+        "min_volume_ratio": 1.7383456482049826,
+        "max_volatility": 2.081587580005567,
+        "profit_lock": 1.7674905257055145,
+        "optimization_score": 0.0
+    }
+}
